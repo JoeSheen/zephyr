@@ -1,5 +1,6 @@
 package com.shoejs
 
+import com.shoejs.plugins.configureDatabases
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
