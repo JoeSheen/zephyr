@@ -24,6 +24,6 @@ object DatabaseFactory {
             SchemaUtils.create(Journals)
         }
 
-        logger.info("Connecting to postgres database at $url")
+        logger.info("Connected to postgres database at $url")
     }
 }
