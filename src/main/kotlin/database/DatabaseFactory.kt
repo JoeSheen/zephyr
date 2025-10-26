@@ -1,6 +1,6 @@
 package com.shoejs.database
 
-import com.shoejs.database.tables.Journals
+import com.shoejs.database.tables.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -21,6 +21,7 @@ object DatabaseFactory {
 
         // Create tables if they don't exist
         transaction {
+            SchemaUtils.create(Users)
             SchemaUtils.create(Journals)
         }
 
