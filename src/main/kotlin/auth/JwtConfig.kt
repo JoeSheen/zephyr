@@ -5,4 +5,6 @@ data class JwtConfig(
     val secret: String,
     val audience: String,
     val domain: String,
+    val expirationOffset: Long,
+    val notBeforeOffset: Long,
 )

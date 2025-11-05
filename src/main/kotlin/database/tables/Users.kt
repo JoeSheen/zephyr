@@ -15,3 +15,11 @@ object Users : LongIdTable() {
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").nullable()
 }
+
+// User(...) needs to be defined in features/user/User.kt
+/*fun ResultRow.toUser() = User(
+    id = this[Users.id].value,
+    firstName = this[Users.firstName],
+    lastName = this[Users.lastName],
+    //...
+)*/
