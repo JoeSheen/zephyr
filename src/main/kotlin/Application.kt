@@ -4,6 +4,7 @@ import com.shoejs.auth.JwtConfig
 import com.shoejs.plugins.configureDatabases
 import com.shoejs.plugins.configureRouting
 import com.shoejs.plugins.configureSecurity
+import com.shoejs.plugins.configureSerialization
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
