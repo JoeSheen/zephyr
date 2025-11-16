@@ -23,3 +23,10 @@ data class UserResponse(
     val lastName: String,
     val username: String,
 )
+
+fun User.toUserResponse() = UserResponse(
+    id = this.id,
+    firstName = this.firstName,
+    lastName = this.lastName,
+    username = this.username
+)
