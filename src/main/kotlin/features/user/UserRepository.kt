@@ -2,8 +2,10 @@ package com.shoejs.features.user
 
 import com.shoejs.database.tables.Users
 import com.shoejs.database.tables.toUser
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 
@@ -18,6 +20,7 @@ object UserRepository {
         password: String
     ): User? {
         return transaction {
+            addLogger(StdOutSqlLogger)
             Users.insert {
                 it[Users.firstName] = firstName
                 it[Users.lastName] = lastName
@@ -31,7 +34,8 @@ object UserRepository {
 
     fun getUserByUsername(username: String): User? {
         return transaction {
-            Users.select(Users.username eq username).firstOrNull()?.toUser()
+            addLogger(StdOutSqlLogger)
+            Users.selectAll().where { Users.username eq username }.firstOrNull()?.toUser()
         }
     }
 }

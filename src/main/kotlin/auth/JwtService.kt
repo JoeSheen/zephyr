@@ -7,9 +7,9 @@ import java.util.UUID
 
 class JwtService(private val config: JwtConfig) {
 
-    fun generateAuthToken(/*User/Claims*/): String {
+    fun generateAuthToken(subject: String): String {
         return JWT.create().withJWTId(UUID.randomUUID().toString())
-            .withIssuer(config.domain).withSubject("temp-sub")
+            .withIssuer(config.domain).withSubject(subject)
             .withExpiresAt(Date(System.currentTimeMillis() + config.expirationOffset))
             .withNotBefore(Date(System.currentTimeMillis() - config.notBeforeOffset))
             .withAudience(config.audience).withIssuedAt(Date())
