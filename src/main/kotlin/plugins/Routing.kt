@@ -7,6 +7,8 @@ import com.shoejs.features.auth.LoginRequest
 import com.shoejs.features.auth.RegisterRequest
 import com.shoejs.features.auth.authRoutes
 import com.shoejs.features.tag.TagRequest
+import com.shoejs.features.tag.TagService
+import com.shoejs.features.tag.tagRoutes
 import com.shoejs.utils.isHexColor
 import com.shoejs.utils.isInvalidEmail
 import io.ktor.server.application.Application
@@ -45,5 +47,6 @@ fun Application.configureRouting(config: JwtConfig) {
     }
     routing {
         authRoutes(AuthService(), JwtService(config))
+        tagRoutes(TagService())
     }
 }
