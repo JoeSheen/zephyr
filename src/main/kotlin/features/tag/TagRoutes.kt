@@ -50,11 +50,10 @@ fun Route.tagRoutes(tagService: TagService) {
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' missing in request"
                 )
 
-                val deleted = tagService.deleteTagById(tagId)
-                if (!deleted) {
-                    call.respond(HttpStatusCode.NotFound, "Tag not found")
+                when(tagService.deleteTagById(tagId)) {
+                    true -> call.respond(HttpStatusCode.OK, "Tag successfully deleted")
+                    false -> call.respond(HttpStatusCode.NotFound, "Tag not found")
                 }
-                call.respond(HttpStatusCode.OK, "Tag successfully deleted")
             }
         }
     }
