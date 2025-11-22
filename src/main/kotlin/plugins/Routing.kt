@@ -6,6 +6,10 @@ import com.shoejs.features.auth.AuthService
 import com.shoejs.features.auth.LoginRequest
 import com.shoejs.features.auth.RegisterRequest
 import com.shoejs.features.auth.authRoutes
+import com.shoejs.features.tag.TagRequest
+import com.shoejs.features.tag.TagService
+import com.shoejs.features.tag.tagRoutes
+import com.shoejs.utils.isHexColor
 import com.shoejs.utils.isInvalidEmail
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -33,8 +37,16 @@ fun Application.configureRouting(config: JwtConfig) {
                 else -> ValidationResult.Valid
             }
         }
+        validate<TagRequest> { request ->
+            when {
+                request.name.isBlank() -> ValidationResult.Invalid("Tag name cannot be blank")
+                !isHexColor(request.hexColor) -> ValidationResult.Invalid("Invalid hex color")
+                else -> ValidationResult.Valid
+            }
+        }
     }
     routing {
         authRoutes(AuthService(), JwtService(config))
+        tagRoutes(TagService())
     }
 }

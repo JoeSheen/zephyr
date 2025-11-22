@@ -22,6 +22,7 @@ object DatabaseFactory {
         // Create tables if they don't exist
         transaction {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Tags)
             SchemaUtils.create(Journals)
         }
 
