@@ -18,24 +18,25 @@ object UserRepository {
         username: String,
         email: String,
         password: String
-    ): User? {
-        return transaction {
-            addLogger(StdOutSqlLogger)
-            Users.insert {
-                it[Users.firstName] = firstName
-                it[Users.lastName] = lastName
-                it[Users.dateOfBirth] = dateOfBirth
-                it[Users.username] = username
-                it[Users.email] = email
-                it[Users.password] = password
-            }.resultedValues?.singleOrNull()?.toUser()
-        }
+    ): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.insert {
+            it[Users.firstName] = firstName
+            it[Users.lastName] = lastName
+            it[Users.dateOfBirth] = dateOfBirth
+            it[Users.username] = username
+            it[Users.email] = email
+            it[Users.password] = password
+        }.resultedValues?.singleOrNull()?.toUser()
     }
 
-    fun getUserByUsername(username: String): User? {
-        return transaction {
-            addLogger(StdOutSqlLogger)
-            Users.selectAll().where { Users.username eq username }.firstOrNull()?.toUser()
-        }
+    fun getUserByUsername(username: String): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.selectAll().where { Users.username eq username }.firstOrNull()?.toUser()
+    }
+
+    fun getUserById(id: Long): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
     }
 }
