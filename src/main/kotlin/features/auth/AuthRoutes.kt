@@ -18,7 +18,7 @@ fun Route.authRoutes(authService: AuthService, jwtService: JwtService) {
                 return@post call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
             }
 
-            val token = jwtService.generateAuthToken(userResponse.username)
+            val token = jwtService.generateAuthToken(userResponse.username, userResponse.id)
             call.respond(HttpStatusCode.Created, AuthResponse(token = token, user = userResponse))
         }
         post("/login") {
@@ -29,7 +29,7 @@ fun Route.authRoutes(authService: AuthService, jwtService: JwtService) {
                 return@post call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
             }
 
-            val token = jwtService.generateAuthToken(userResponse.username)
+            val token = jwtService.generateAuthToken(userResponse.username, userResponse.id)
             call.respond(HttpStatusCode.OK, AuthResponse(token = token, user = userResponse))
         }
     }
