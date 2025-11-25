@@ -7,7 +7,9 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object UserRepository {
 
@@ -38,5 +40,24 @@ object UserRepository {
     fun getUserById(id: Long): User? = transaction {
         addLogger(StdOutSqlLogger)
         Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
+    }
+
+    fun updateUserById(id: Long, username: String?, email: String?): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        var updated = false
+        Users.update({ Users.id eq id }) { userRow ->
+            username?.let {
+                userRow[Users.username] = it
+                updated = true
+            }
+            email?.let {
+                userRow[Users.email] = it
+                updated = true
+            }
+            if (updated) {
+                userRow[Users.updatedAt] = LocalDateTime.now()
+            }
+        }
+        getUserById(id)
     }
 }

@@ -17,6 +17,12 @@ data class User(
 )
 
 @Serializable
+data class UserUpdateRequest(
+    val username: String?,
+    val email: String?,
+)
+
+@Serializable
 data class UserResponse(
     val id: Long,
     val firstName: String,

@@ -10,6 +10,7 @@ import com.shoejs.features.tag.TagRequest
 import com.shoejs.features.tag.TagService
 import com.shoejs.features.tag.tagRoutes
 import com.shoejs.features.user.UserService
+import com.shoejs.features.user.UserUpdateRequest
 import com.shoejs.features.user.userRoutes
 import com.shoejs.utils.isValidEmail
 import com.shoejs.utils.isValidHexColor
@@ -47,6 +48,13 @@ fun Application.configureRouting(config: JwtConfig) {
             when {
                 request.name.isBlank() -> ValidationResult.Invalid("Tag name cannot be blank")
                 !isValid -> ValidationResult.Invalid(errorMessage ?: "Color validation failed")
+                else -> ValidationResult.Valid
+            }
+        }
+        validate<UserUpdateRequest> { request ->
+            when {
+                request.username?.isBlank() == true -> ValidationResult.Invalid("Username cannot be blank")
+                request.email?.isBlank() == true -> ValidationResult.Invalid("Email cannot be blank")
                 else -> ValidationResult.Valid
             }
         }

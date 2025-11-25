@@ -3,6 +3,7 @@ package com.shoejs.features.user
 import com.shoejs.auth.checkUserIdentity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -17,10 +18,15 @@ fun Route.userRoutes(userService: UserService) {
 
                 userService.getUserById(userId)?.let { userDetailsResponse ->
                     call.respond(HttpStatusCode.OK, userDetailsResponse)
-                } ?: call.respond(HttpStatusCode.NotFound)
+                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
             }
             put("/{userId}") {
                 val userId = call.checkUserIdentity()
+                val updateRequest = call.receive<UserUpdateRequest>()
+
+                userService.updateUser(userId, updateRequest)?.let { userDetailsResponse ->
+                    call.respond(HttpStatusCode.OK, userDetailsResponse)
+                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
             }
         }
     }
