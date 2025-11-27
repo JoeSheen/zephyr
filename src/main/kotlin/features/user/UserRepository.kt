@@ -7,7 +7,9 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object UserRepository {
 
@@ -18,24 +20,44 @@ object UserRepository {
         username: String,
         email: String,
         password: String
-    ): User? {
-        return transaction {
-            addLogger(StdOutSqlLogger)
-            Users.insert {
-                it[Users.firstName] = firstName
-                it[Users.lastName] = lastName
-                it[Users.dateOfBirth] = dateOfBirth
-                it[Users.username] = username
-                it[Users.email] = email
-                it[Users.password] = password
-            }.resultedValues?.singleOrNull()?.toUser()
-        }
+    ): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.insert {
+            it[Users.firstName] = firstName
+            it[Users.lastName] = lastName
+            it[Users.dateOfBirth] = dateOfBirth
+            it[Users.username] = username
+            it[Users.email] = email
+            it[Users.password] = password
+        }.resultedValues?.singleOrNull()?.toUser()
     }
 
-    fun getUserByUsername(username: String): User? {
-        return transaction {
-            addLogger(StdOutSqlLogger)
-            Users.selectAll().where { Users.username eq username }.firstOrNull()?.toUser()
+    fun getUserByUsername(username: String): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.selectAll().where { Users.username eq username }.firstOrNull()?.toUser()
+    }
+
+    fun getUserById(id: Long): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
+    }
+
+    fun updateUserById(id: Long, username: String?, email: String?): User? = transaction {
+        addLogger(StdOutSqlLogger)
+        var updated = false
+        Users.update({ Users.id eq id }) { userRow ->
+            username?.let {
+                userRow[Users.username] = it
+                updated = true
+            }
+            email?.let {
+                userRow[Users.email] = it
+                updated = true
+            }
+            if (updated) {
+                userRow[Users.updatedAt] = LocalDateTime.now()
+            }
         }
+        getUserById(id)
     }
 }

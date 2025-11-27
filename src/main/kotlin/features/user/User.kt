@@ -17,6 +17,12 @@ data class User(
 )
 
 @Serializable
+data class UserUpdateRequest(
+    val username: String?,
+    val email: String?,
+)
+
+@Serializable
 data class UserResponse(
     val id: Long,
     val firstName: String,
@@ -29,4 +35,27 @@ fun User.toUserResponse() = UserResponse(
     firstName = this.firstName,
     lastName = this.lastName,
     username = this.username
+)
+
+@Serializable
+data class UserDetailsResponse(
+    val id: Long,
+    val firstName: String,
+    val lastName: String,
+    val dateOfBirth: String,
+    val username: String,
+    val email: String,
+    val createdAt: String,
+    val updatedAt: String?
+)
+
+fun User.toUserDetailsResponse() = UserDetailsResponse(
+    id = this.id,
+    firstName = this.firstName,
+    lastName = this.lastName,
+    dateOfBirth = this.dateOfBirth.toString(),
+    username = this.username,
+    email = this.email,
+    createdAt = this.createdAt.toString(),
+    updatedAt = this.updatedAt?.toString()
 )

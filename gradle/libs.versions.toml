@@ -5,6 +5,8 @@ kotlin = "2.2.20"
 ktor = "3.3.1"
 logback = "1.5.20"
 postgres = "42.7.8"
+mindrot = "0.4"
+libphonenumber = "9.0.19"
 
 [libraries]
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
@@ -28,6 +30,10 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+
+# Custom library dependencies
+mindrot-jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "mindrot" }
+googlecode-libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", version.ref = "libphonenumber" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
