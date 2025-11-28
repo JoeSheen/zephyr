@@ -11,6 +11,7 @@ data class User(
     val dateOfBirth: LocalDate,
     val username: String,
     val email: String,
+    val phoneNumber: String?,
     val password: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?
@@ -20,6 +21,8 @@ data class User(
 data class UserUpdateRequest(
     val username: String?,
     val email: String?,
+    val phoneNumber: String?,
+    val countryCode: String?
 )
 
 @Serializable
@@ -45,6 +48,7 @@ data class UserDetailsResponse(
     val dateOfBirth: String,
     val username: String,
     val email: String,
+    val phoneNumber: String?,
     val createdAt: String,
     val updatedAt: String?
 )
@@ -56,6 +60,7 @@ fun User.toUserDetailsResponse() = UserDetailsResponse(
     dateOfBirth = this.dateOfBirth.toString(),
     username = this.username,
     email = this.email,
+    phoneNumber = this.phoneNumber,
     createdAt = this.createdAt.toString(),
     updatedAt = this.updatedAt?.toString()
 )

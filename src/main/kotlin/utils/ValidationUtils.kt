@@ -21,15 +21,28 @@ fun isValidHexColor(color: String): Pair<Boolean, String?> {
     else true to null
 }
 
-fun isValidPhoneNumber(numberToParse: String, defaultRegion: String = "GB"): Pair<Boolean, String?> {
+fun isValidPhoneNumber(numberToParse: String, defaultRegion: String? = null): Pair<Boolean, String?> {
+    val region = defaultRegion ?: "GB"
     return try {
-        val phoneNumber = phoneUtil.parse(numberToParse, defaultRegion)
-        if (phoneUtil.isValidNumber(phoneNumber)) {
+        val phoneNumber = phoneUtil.parse(numberToParse, region)
+        if (phoneUtil.isValidNumberForRegion(phoneNumber, region)) {
             true to null
         } else {
-            false to "Invalid phone number for region '$defaultRegion'"
+            false to "Invalid phone number for region '$region'"
         }
     } catch (e: NumberParseException) {
         false to "Failed to parse phone number: ${e.message}"
+    }
+}
+
+fun formatPhoneNumber(numberToParse: String?, defaultRegion: String? = null): String? {
+    val region = defaultRegion ?: "GB"
+    return try {
+        val phoneNumber = phoneUtil.parse(numberToParse, region)
+        if (phoneUtil.isValidNumber(phoneNumber)) {
+            phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
+        } else null
+    } catch (_: NumberParseException) {
+        null
     }
 }

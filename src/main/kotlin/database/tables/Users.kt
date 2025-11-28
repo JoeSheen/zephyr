@@ -13,6 +13,7 @@ object Users : LongIdTable() {
     val dateOfBirth = date("date_of_birth")
     val username = varchar(name = "username", length = 255).uniqueIndex()
     val email = varchar(name = "email", length = 255).uniqueIndex()
+    val phoneNumber = varchar(name = "phone_number", length = 255).nullable().uniqueIndex()
     val password = varchar(name = "password", length = 255)
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").nullable()
@@ -25,6 +26,7 @@ fun ResultRow.toUser() = User(
     dateOfBirth = this[Users.dateOfBirth],
     username = this[Users.username],
     email = this[Users.email],
+    phoneNumber = this[Users.phoneNumber],
     password = this[Users.password],
     createdAt = this[Users.createdAt],
     updatedAt = this[Users.updatedAt]
