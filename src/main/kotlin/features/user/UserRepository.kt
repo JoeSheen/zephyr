@@ -2,8 +2,10 @@ package com.shoejs.features.user
 
 import com.shoejs.database.tables.Users
 import com.shoejs.database.tables.toUser
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -42,7 +44,13 @@ object UserRepository {
         Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
     }
 
-    fun updateUserById(id: Long, username: String?, email: String?): User? = transaction {
+    fun updateUserById(
+        id: Long,
+        username: String?,
+        email: String?,
+        gender: Gender?,
+        phoneNumber: String?
+    ): User? = transaction {
         addLogger(StdOutSqlLogger)
         var updated = false
         Users.update({ Users.id eq id }) { userRow ->
@@ -54,10 +62,23 @@ object UserRepository {
                 userRow[Users.email] = it
                 updated = true
             }
+            gender?.let {
+                userRow[Users.gender] = it
+                updated = true
+            }
+            phoneNumber?.let {
+                userRow[Users.phoneNumber] = it
+                updated = true
+            }
             if (updated) {
                 userRow[Users.updatedAt] = LocalDateTime.now()
             }
         }
         getUserById(id)
+    }
+
+    fun deleteUserById(id: Long): Boolean = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.deleteWhere { Users.id eq id } > 0
     }
 }

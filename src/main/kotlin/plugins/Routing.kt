@@ -14,6 +14,7 @@ import com.shoejs.features.user.UserUpdateRequest
 import com.shoejs.features.user.userRoutes
 import com.shoejs.utils.isValidEmail
 import com.shoejs.utils.isValidHexColor
+import com.shoejs.utils.isValidPhoneNumber
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation
@@ -55,6 +56,14 @@ fun Application.configureRouting(config: JwtConfig) {
             when {
                 request.username?.isBlank() == true -> ValidationResult.Invalid("Username cannot be blank")
                 request.email?.isBlank() == true -> ValidationResult.Invalid("Email cannot be blank")
+                request.gender?.isBlank() == true -> ValidationResult.Invalid("Gender cannot be blank")
+                request.phoneNumber != null -> {
+                    val (isValid, errorMessage) = isValidPhoneNumber(request.phoneNumber, request.countryCode)
+                    if (!isValid) ValidationResult.Invalid(
+                        errorMessage ?: "phone number validation failed"
+                    ) else ValidationResult.Valid
+                }
+
                 else -> ValidationResult.Valid
             }
         }

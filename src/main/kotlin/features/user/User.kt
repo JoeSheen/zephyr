@@ -4,13 +4,19 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+enum class Gender {
+    MALE, FEMALE, UNKNOWN
+}
+
 data class User(
     val id: Long,
     val firstName: String,
     val lastName: String,
     val dateOfBirth: LocalDate,
+    val gender: Gender?,
     val username: String,
     val email: String,
+    val phoneNumber: String?,
     val password: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?
@@ -20,6 +26,9 @@ data class User(
 data class UserUpdateRequest(
     val username: String?,
     val email: String?,
+    val gender: String?,
+    val phoneNumber: String?,
+    val countryCode: String?
 )
 
 @Serializable
@@ -43,8 +52,10 @@ data class UserDetailsResponse(
     val firstName: String,
     val lastName: String,
     val dateOfBirth: String,
+    val gender: String,
     val username: String,
     val email: String,
+    val phoneNumber: String?,
     val createdAt: String,
     val updatedAt: String?
 )
@@ -54,8 +65,10 @@ fun User.toUserDetailsResponse() = UserDetailsResponse(
     firstName = this.firstName,
     lastName = this.lastName,
     dateOfBirth = this.dateOfBirth.toString(),
+    gender = this.gender?.name ?: Gender.UNKNOWN.name,
     username = this.username,
     email = this.email,
+    phoneNumber = this.phoneNumber,
     createdAt = this.createdAt.toString(),
     updatedAt = this.updatedAt?.toString()
 )
