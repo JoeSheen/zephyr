@@ -10,11 +10,13 @@ object Journals : LongIdTable() {
     val title = varchar(name = "title", length = 255)
     val content = text(name = "content")
     val createdAt = datetime(name = "created_at").defaultExpression(CurrentDateTime)
+    val updatedAt = datetime(name = "updated_at").nullable()
 }
 
 fun ResultRow.toJournal() = Journal(
     id = this[Journals.id].value,
     title = this[Journals.title],
     content = this[Journals.content],
-    createdAt = this[Journals.createdAt]
+    createdAt = this[Journals.createdAt],
+    updatedAt = this[Journals.updatedAt]
 )
