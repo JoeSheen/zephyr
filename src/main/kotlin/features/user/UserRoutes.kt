@@ -6,6 +6,7 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
@@ -27,6 +28,14 @@ fun Route.userRoutes(userService: UserService) {
                 userService.updateUser(userId, updateRequest)?.let { userDetailsResponse ->
                     call.respond(HttpStatusCode.OK, userDetailsResponse)
                 } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+            }
+            delete("/{userId}") {
+                call.checkUserIdentity().let { userId ->
+                    when(userService.deleteUserById(userId)) {
+                        true -> call.respond(HttpStatusCode.OK, "User successfully deleted")
+                        false -> call.respond(HttpStatusCode.NotFound, "User not found")
+                    }
+                }
             }
         }
     }

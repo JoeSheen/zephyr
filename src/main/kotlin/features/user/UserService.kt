@@ -21,4 +21,7 @@ class UserService {
             phoneNumber = phoneNumber
         )?.toUserDetailsResponse()
     }
+
+    fun deleteUserById(id: Long): Boolean =
+        UserRepository.deleteUserById(id = id)
 }

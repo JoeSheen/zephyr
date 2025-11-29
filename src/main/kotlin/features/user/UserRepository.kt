@@ -2,8 +2,10 @@ package com.shoejs.features.user
 
 import com.shoejs.database.tables.Users
 import com.shoejs.database.tables.toUser
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -73,5 +75,10 @@ object UserRepository {
             }
         }
         getUserById(id)
+    }
+
+    fun deleteUserById(id: Long): Boolean = transaction {
+        addLogger(StdOutSqlLogger)
+        Users.deleteWhere { Users.id eq id } > 0
     }
 }
