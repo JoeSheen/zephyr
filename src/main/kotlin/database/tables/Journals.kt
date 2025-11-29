@@ -1,6 +1,8 @@
 package com.shoejs.database.tables
 
+import com.shoejs.features.journal.Journal
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.javatime.datetime
 
@@ -9,3 +11,10 @@ object Journals : LongIdTable() {
     val content = text(name = "content")
     val createdAt = datetime(name = "created_at").defaultExpression(CurrentDateTime)
 }
+
+fun ResultRow.toJournal() = Journal(
+    id = this[Journals.id].value,
+    title = this[Journals.title],
+    content = this[Journals.content],
+    createdAt = this[Journals.createdAt]
+)
