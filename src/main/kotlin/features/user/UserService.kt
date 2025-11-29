@@ -9,10 +9,15 @@ class UserService {
 
     fun updateUser(id: Long, userUpdateRequest: UserUpdateRequest): UserDetailsResponse? {
         val phoneNumber = formatPhoneNumber(userUpdateRequest.phoneNumber)
+        val gender = userUpdateRequest.gender?.let { genderStr ->
+            runCatching { Gender.valueOf(genderStr) }.getOrNull()
+        }
+
         return UserRepository.updateUserById(
             id = id,
             username = userUpdateRequest.username,
             email = userUpdateRequest.email,
+            gender = gender,
             phoneNumber = phoneNumber
         )?.toUserDetailsResponse()
     }

@@ -56,6 +56,7 @@ fun Application.configureRouting(config: JwtConfig) {
             when {
                 request.username?.isBlank() == true -> ValidationResult.Invalid("Username cannot be blank")
                 request.email?.isBlank() == true -> ValidationResult.Invalid("Email cannot be blank")
+                request.gender?.isBlank() == true -> ValidationResult.Invalid("Gender cannot be blank")
                 request.phoneNumber != null -> {
                     val (isValid, errorMessage) = isValidPhoneNumber(request.phoneNumber, request.countryCode)
                     if (!isValid) ValidationResult.Invalid(

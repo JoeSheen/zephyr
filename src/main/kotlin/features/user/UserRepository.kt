@@ -42,7 +42,13 @@ object UserRepository {
         Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
     }
 
-    fun updateUserById(id: Long, username: String?, email: String?, phoneNumber: String?): User? = transaction {
+    fun updateUserById(
+        id: Long,
+        username: String?,
+        email: String?,
+        gender: Gender?,
+        phoneNumber: String?
+    ): User? = transaction {
         addLogger(StdOutSqlLogger)
         var updated = false
         Users.update({ Users.id eq id }) { userRow ->
@@ -52,6 +58,10 @@ object UserRepository {
             }
             email?.let {
                 userRow[Users.email] = it
+                updated = true
+            }
+            gender?.let {
+                userRow[Users.gender] = it
                 updated = true
             }
             phoneNumber?.let {
