@@ -1,23 +1,134 @@
 openapi: "3.0.3"
+
 info:
-  title: "Application API"
-  description: "Application API"
-  version: "1.0.0"
+  title: "Zephyr API"
+  description: "This API allows authenticated users to create, edit, and manage journals"
+  version: "0.0.1"
+
 servers:
   - url: "http://0.0.0.0:8080"
+    description: Development Server
+
 paths:
-  /:
-    get:
-      description: "Hello World!"
+  # AUTH PATHS
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Endpoint allowing users to register for Zephyr
+      requestBody:
+        description: Information used to create new user entity
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
       responses:
-        "200":
-          description: "OK"
+        201:
+          description: New Zephyr user created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        400:
+          description: BAD REQUEST – invalid input
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Hello World!"
+                type: string
+                example: Invalid User Registration Request
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Endpoint allowing users to login to Zephyr
+      requestBody:
+        description: Information required to valid a user during the login process
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        200:
+          description: Zephyr user details found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        401:
+          description: UNAUTHORIZED - user details not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Invalid username or password
+
 components:
-  schemas: {}
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - firstName
+        - lastName
+        - dateOfBirth
+        - username
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: JohnDoe123
+      required:
+        - id
+        - firstName
+        - lastName
+        - username
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "jwt12345"
+        user:
+          $ref: "#/components/schemas/UserResponse"
+      required:
+        - token
+        - user

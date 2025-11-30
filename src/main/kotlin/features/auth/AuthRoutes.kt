@@ -15,7 +15,7 @@ fun Route.authRoutes(authService: AuthService, jwtService: JwtService) {
 
             val userResponse = authService.registerUser(registerRequest)
             if (userResponse == null) {
-                return@post call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
+                return@post call.respond(HttpStatusCode.BadRequest, "Invalid User Registration Request")
             }
 
             val token = jwtService.generateAuthToken(userResponse.username, userResponse.id)
