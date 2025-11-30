@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 object Journals : LongIdTable() {
     val title = varchar(name = "title", length = 255)
     val content = text(name = "content")
+    //val author = reference(name = "author_id", foreign = Users)
     val createdAt = datetime(name = "created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime(name = "updated_at").nullable()
 }
