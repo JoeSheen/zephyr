@@ -8,7 +8,8 @@ data class Journal(
     val title: String,
     val content: String,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
+    val updateCount: Long
 )
 
 @Serializable
@@ -23,7 +24,8 @@ data class JournalResponse(
     val title: String,
     val content: String,
     val createdAt: String,
-    val updatedAt: String?
+    val updatedAt: String?,
+    val updateCount: Long
 )
 
 fun Journal.toJournalResponse() = JournalResponse(
@@ -31,5 +33,6 @@ fun Journal.toJournalResponse() = JournalResponse(
     title = this.title,
     content = this.content,
     createdAt = this.createdAt.toString(),
-    updatedAt = this.updatedAt?.toString()
+    updatedAt = this.updatedAt?.toString(),
+    updateCount = this.updateCount
 )

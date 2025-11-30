@@ -12,6 +12,7 @@ object Journals : LongIdTable() {
     //val author = reference(name = "author_id", foreign = Users)
     val createdAt = datetime(name = "created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime(name = "updated_at").nullable()
+    val updateCount = long(name = "update_count").default(0)
 }
 
 fun ResultRow.toJournal() = Journal(
@@ -19,5 +20,6 @@ fun ResultRow.toJournal() = Journal(
     title = this[Journals.title],
     content = this[Journals.content],
     createdAt = this[Journals.createdAt],
-    updatedAt = this[Journals.updatedAt]
+    updatedAt = this[Journals.updatedAt],
+    updateCount = this[Journals.updateCount]
 )

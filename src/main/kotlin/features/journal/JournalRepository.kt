@@ -2,6 +2,7 @@ package com.shoejs.features.journal
 
 import com.shoejs.database.tables.Journals
 import com.shoejs.database.tables.toJournal
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -29,10 +30,13 @@ object JournalRepository {
 
     fun updateJournalById(id: Long, title: String, content: String): Journal? = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.update({ Journals.id eq id}) { journalRow ->
-            journalRow[Journals.title] = title
-            journalRow[Journals.content] = content
-            journalRow[Journals.updatedAt] = LocalDateTime.now()
+        Journals.update(where = { Journals.id eq id }) { journalRow ->
+            with(receiver = SqlExpressionBuilder) {
+                journalRow[Journals.title] = title
+                journalRow[Journals.content] = content
+                journalRow[Journals.updatedAt] = LocalDateTime.now()
+                journalRow.update(column = Journals.updateCount, value = Journals.updateCount + 1)
+            }
         }
         getJournalById(id)
     }
