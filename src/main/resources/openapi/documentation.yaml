@@ -63,6 +63,111 @@ paths:
               schema:
                 type: string
                 example: Invalid username or password
+  # TAG PATHS
+  /tags:
+    post:
+      tags:
+        - Tags
+      summary: Endpoint for creating new Tags
+      requestBody:
+        description: Information needed to create a new Tag object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagRequest"
+      responses:
+        201:
+          description: Newly created Tag object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResponse"
+        400:
+          description: BAD REQUEST – invalid input
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Invalid Tag Request
+    get:
+      tags:
+        - Tags
+      summary: Endpoint for retrieving all Tags
+      responses:
+        200:
+          description: Returns a list of all tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TagResponse"
+  /tags/{tagId}:
+    get:
+      tags:
+        - Tags
+      summary: Endpoint for retrieving a Tag by ID
+      parameters:
+        - name: tagId
+          in: path
+          description: The ID of the Tag
+          required: true
+          schema:
+            type: number
+      responses:
+        200:
+          description: Tag details found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResponse"
+        400:
+          description: BAD REQUEST – invalid input
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Path parameter 'tagId' missing in request
+        404:
+          description: NOT FOUND - Tag not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Tag not found
+    put:
+      tags:
+        - Tags
+      summary: Endpoint for updating an existing Tag
+      parameters:
+        - name: tagId
+          in: path
+          description: ID of the Tag being updated
+          required: true
+          schema:
+            type: number
+      responses:
+        200:
+          description: Returns the updated Tag details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResponse"
+        400:
+          description: BAD REQUEST - invalid input
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Path parameter 'tagId' missing in request
+        404:
+          description: NOT FOUND - Tag not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Tag not found
 
 components:
   schemas:
@@ -132,3 +237,31 @@ components:
       required:
         - token
         - user
+
+    TagRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        hexColor:
+          type: string
+      required:
+        - name
+        - hexColor
+
+    TagResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 10
+        name:
+          type: string
+          example: "red"
+        hexColor:
+          type: string
+          example: "#FF0000"
+      required:
+        - id
+        - name
+        - hexColor
