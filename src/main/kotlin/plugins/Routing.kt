@@ -6,6 +6,9 @@ import com.shoejs.features.auth.AuthService
 import com.shoejs.features.auth.LoginRequest
 import com.shoejs.features.auth.RegisterRequest
 import com.shoejs.features.auth.authRoutes
+import com.shoejs.features.journal.JournalRequest
+import com.shoejs.features.journal.JournalService
+import com.shoejs.features.journal.journalRoutes
 import com.shoejs.features.tag.TagRequest
 import com.shoejs.features.tag.TagService
 import com.shoejs.features.tag.tagRoutes
@@ -67,10 +70,18 @@ fun Application.configureRouting(config: JwtConfig) {
                 else -> ValidationResult.Valid
             }
         }
+        validate<JournalRequest> { request ->
+            when {
+                request.title.isBlank() -> ValidationResult.Invalid("Title cannot be blank")
+                request.content.isBlank() -> ValidationResult.Invalid("Content cannot be blank")
+                else -> ValidationResult.Valid
+            }
+        }
     }
     routing {
         authRoutes(AuthService(), JwtService(config))
         tagRoutes(TagService())
         userRoutes(UserService())
+        journalRoutes(JournalService())
     }
 }
