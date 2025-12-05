@@ -22,6 +22,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 
 fun Application.configureRouting(config: JwtConfig) {
@@ -79,9 +80,11 @@ fun Application.configureRouting(config: JwtConfig) {
         }
     }
     routing {
-        authRoutes(AuthService(), JwtService(config))
-        tagRoutes(TagService())
-        userRoutes(UserService())
-        journalRoutes(JournalService())
+        route("/api/v1") {
+            authRoutes(AuthService(), JwtService(config))
+            tagRoutes(TagService())
+            userRoutes(UserService())
+            journalRoutes(JournalService())
+        }
     }
 }
