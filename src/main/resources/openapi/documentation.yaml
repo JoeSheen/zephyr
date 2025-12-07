@@ -36,7 +36,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: Invalid User Registration Request
+                example: Invalid registration request
   /auth/login:
     post:
       tags:

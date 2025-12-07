@@ -13,25 +13,18 @@ fun Route.authRoutes(authService: AuthService, jwtService: JwtService) {
         post("/register") {
             val registerRequest = call.receive<RegisterRequest>()
 
-            val userResponse = authService.registerUser(registerRequest)
-            if (userResponse == null) {
-                return@post call.respond(HttpStatusCode.BadRequest, "Invalid User Registration Request")
-            }
-
-            val token = jwtService.generateAuthToken(userResponse.username, userResponse.id)
-            call.respond(HttpStatusCode.Created, AuthResponse(token = token, user = userResponse))
+            authService.registerUser(registerRequest)?.let { user ->
+                val token = jwtService.generateAuthToken(user.username, user.id)
+                call.respond(HttpStatusCode.Created, AuthResponse(token, user))
+            } ?: call.respond(HttpStatusCode.BadRequest, "Invalid registration request")
         }
         post("/login") {
             val loginRequest = call.receive<LoginRequest>()
 
-            val userResponse = authService.loginUser(loginRequest)
-            if (userResponse == null) {
-                return@post call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
-            }
-
-            val token = jwtService.generateAuthToken(userResponse.username, userResponse.id)
-            call.respond(HttpStatusCode.OK, AuthResponse(token = token, user = userResponse))
+            authService.loginUser(loginRequest)?.let { user ->
+                val token = jwtService.generateAuthToken(user.username, user.id)
+                call.respond(HttpStatusCode.OK, AuthResponse(token, user))
+            } ?: call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
         }
     }
 }
-
