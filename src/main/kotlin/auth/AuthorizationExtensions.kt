@@ -15,8 +15,7 @@ fun ApplicationCall.checkUserIdentity(pathParam: String = "userId"): Long {
         ?: throw Exception("Path parameter '$pathParam' missing in request parameters")
 
     require(userIdClaim == userId) {
-        //"Expected user ID to be $userIdClaim but was $userId"
-        "You are not allowed to view this user's details"
+        "Expected user ID to be '$userIdClaim' but was '$userId'"
     }
 
     return userId
