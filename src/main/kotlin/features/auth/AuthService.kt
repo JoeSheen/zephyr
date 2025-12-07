@@ -15,9 +15,10 @@ class AuthService {
 
         val dateOfBirth = try {
             LocalDate.parse(dateOfBirthStr, DateTimeFormatter.ISO_DATE)
-        } catch (e: DateTimeParseException) {
-            // TODO: impl custom exception
-            throw Exception(e.message)
+        } catch (_: DateTimeParseException) {
+            // TODO: decide if I want to impl and throw custom exceptions
+            //throw Exception(e.message)
+            return null
         }
 
         val passwordHash = BCrypt.hashpw(password, BCrypt.gensalt())
