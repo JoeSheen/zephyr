@@ -7,6 +7,7 @@ logback = "1.5.20"
 postgres = "42.7.8"
 mindrot = "0.4"
 libphonenumber = "9.0.19"
+lettuce = "7.2.0.RELEASE"
 
 [libraries]
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
@@ -34,6 +35,7 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 # Custom library dependencies
 mindrot-jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "mindrot" }
 googlecode-libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", version.ref = "libphonenumber" }
+lettuce-redis-client = { module = "io.lettuce:lettuce-core", version.ref = "lettuce"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

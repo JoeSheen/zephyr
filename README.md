@@ -12,20 +12,21 @@ Here are some useful links to get you started:
 
 Here's a list of features included in this project:
 
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [CORS](https://start.ktor.io/p/cors)                                   | Enables Cross-Origin Resource Sharing (CORS)                                       |
-| [Default Headers](https://start.ktor.io/p/default-headers)             | Adds a default set of headers to HTTP responses                                    |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [Swagger](https://start.ktor.io/p/swagger)                             | Serves Swagger UI for your project                                                 |
-| [Authentication](https://start.ktor.io/p/auth)                         | Provides extension point for handling the Authorization header                     |
-| [Authentication JWT](https://start.ktor.io/p/auth-jwt)                 | Handles JSON Web Token (JWT) bearer authentication scheme                          |
+| Name                                                                  | Description                                                                        |
+|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [CORS](https://start.ktor.io/p/cors)                                  | Enables Cross-Origin Resource Sharing (CORS)                                       |
+| [Default Headers](https://start.ktor.io/p/default-headers)            | Adds a default set of headers to HTTP responses                                    |
+| [Routing](https://start.ktor.io/p/routing)                            | Provides a structured routing DSL                                                  |
+| [Swagger](https://start.ktor.io/p/swagger)                            | Serves Swagger UI for your project                                                 |
+| [Authentication](https://start.ktor.io/p/auth)                        | Provides extension point for handling the Authorization header                     |
+| [Authentication JWT](https://start.ktor.io/p/auth-jwt)                | Handles JSON Web Token (JWT) bearer authentication scheme                          |
 | [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [Postgres](https://start.ktor.io/p/postgres)                           | Adds Postgres database to your application                                         |
-| [Exposed](https://start.ktor.io/p/exposed)                             | Adds Exposed database to your application                                          |
-| [Status Pages](https://start.ktor.io/p/status-pages)                   | Provides exception handling for routes                                             |
-| [Request Validation](https://start.ktor.io/p/request-validation)       | Adds validation for incoming requests                                              |
+| [Content Negotiation](https://start.ktor.io/p/content-negotiation)    | Provides automatic content conversion according to Content-Type and Accept headers |
+| [Postgres](https://start.ktor.io/p/postgres)                          | Adds Postgres database to your application                                         |
+| [Exposed](https://start.ktor.io/p/exposed)                            | Adds Exposed database to your application                                          |
+| [Status Pages](https://start.ktor.io/p/status-pages)                  | Provides exception handling for routes                                             |
+| [Request Validation](https://start.ktor.io/p/request-validation)      | Adds validation for incoming requests                                              |
+ | [Lettuce](https://redis.io/docs/latest/develop/clients/lettuce/)      | Provides a Redis cache within the Ktor server application                          |
 
 ## Building & Running
 

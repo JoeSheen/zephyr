@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.mindrot.jbcrypt)
     implementation(libs.googlecode.libphonenumber)
+    implementation(libs.lettuce.redis.client)
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
