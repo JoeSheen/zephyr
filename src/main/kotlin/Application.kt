@@ -15,6 +15,8 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val jwtConfig = JwtConfig.fromAppConfig(environment.config)
+    val host = environment.config.property("redis.host").getString()
+    val port = environment.config.property("redis.port").getString().toInt()
 
     configureHTTP()
     configureSecurity(jwtConfig)
@@ -22,5 +24,5 @@ fun Application.module() {
     configureDatabases()
     configureRouting(jwtConfig)
     configureSwagger()
-    configureCache()
+    configureCache(host, port)
 }
