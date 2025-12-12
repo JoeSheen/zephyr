@@ -15,9 +15,20 @@ object RefreshTokenRepository {
 
     private val KEY_ID = UUID.fromString("453ddf64-adee-4b88-8fb9-f665dd387b56")
 
-    suspend fun saveRefreshToken(userId: Long, refreshToken: String) {
-        val result = redis.setex("$KEY_ID:$userId", 60L, refreshToken) // TODO: <- placeholders
-        logger.info("$result")
+    suspend fun storeRefreshToken(userId: Long, refreshTokenValue: String, expiration: Long) {
+        val value = redis.setex("$KEY_ID:$userId", expiration, refreshTokenValue)
+        logger.info("Stored refresh token: $value")
     }
 
+    suspend fun getRefreshToken(userId: Long): String {
+        val value = redis.get("$KEY_ID:$userId")
+            ?: throw IllegalStateException("Refresh token not found")
+        logger.info("Retrieved refresh token: $value")
+        return value
+    }
+
+    suspend fun deleteRefreshToken(userId: Long) {
+        val value = redis.del("$KEY_ID:$userId")
+        logger.info("Deleted refresh token count: $value")
+    }
 }
