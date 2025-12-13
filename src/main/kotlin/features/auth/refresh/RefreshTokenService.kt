@@ -10,7 +10,7 @@ class RefreshTokenService {
             name = "refresh_token",
             value = refreshToken.value,
             httpOnly = false, // Change to true
-            secure = true, // Change to false
+            secure = false, // Change to true
             path = "/",
             maxAge = refreshToken.expiration.toInt()
         )
