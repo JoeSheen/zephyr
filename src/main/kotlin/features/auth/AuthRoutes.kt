@@ -1,7 +1,6 @@
 package com.shoejs.features.auth
 
 import com.shoejs.auth.JwtService
-import com.shoejs.features.auth.refresh.RefreshToken
 import com.shoejs.features.auth.refresh.RefreshTokenService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -23,9 +22,9 @@ fun Route.authRoutes(
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
-            val refreshCookie = refreshTokenService.storeRefreshToken(RefreshToken(user.id))
+            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id)
 
-            call.response.cookies.append(refreshCookie)
+            call.response.cookies.append(refreshToken.toCookie())
             call.respond(HttpStatusCode.Created, AuthResponse(accessToken, user))
         }
         post("/login") {
@@ -37,10 +36,12 @@ fun Route.authRoutes(
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
-            val refreshCookie = refreshTokenService.storeRefreshToken(RefreshToken(user.id))
+            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id)
 
-            call.response.cookies.append(refreshCookie)
+            call.response.cookies.append(refreshToken.toCookie())
             call.respond(HttpStatusCode.OK, AuthResponse(accessToken, user))
         }
+        post("/refresh") {}
+        post("/logout") {}
     }
 }
