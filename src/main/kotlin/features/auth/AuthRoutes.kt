@@ -1,6 +1,7 @@
 package com.shoejs.features.auth
 
 import com.shoejs.auth.JwtService
+import com.shoejs.features.auth.refresh.ExpiredRefreshToken
 import com.shoejs.features.auth.refresh.RefreshTokenService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -17,8 +18,7 @@ fun Route.authRoutes(
             val registerRequest = call.receive<RegisterRequest>()
 
             val user = authService.registerUser(registerRequest) ?: return@post call.respond(
-                HttpStatusCode.BadRequest,
-                "Invalid registration request"
+                HttpStatusCode.BadRequest, "Invalid registration request"
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
@@ -31,8 +31,7 @@ fun Route.authRoutes(
             val loginRequest = call.receive<LoginRequest>()
 
             val user = authService.loginUser(loginRequest) ?: return@post call.respond(
-                HttpStatusCode.Unauthorized,
-                "Invalid username or password"
+                HttpStatusCode.Unauthorized, "Invalid username or password"
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
@@ -42,6 +41,15 @@ fun Route.authRoutes(
             call.respond(HttpStatusCode.OK, AuthResponse(accessToken, user))
         }
         post("/refresh") {}
-        post("/logout") {}
+        post("/logout") {
+            val refreshToken = call.request.cookies["refresh_token"] ?: return@post call.respond(
+                HttpStatusCode.Unauthorized, "No refresh token provided"
+            )
+
+            refreshTokenService.deleteRefreshTokenValue(refreshToken)
+
+            call.response.cookies.append(ExpiredRefreshToken().toCookie())
+            call.respond(HttpStatusCode.OK, "Successfully logged out")
+        }
     }
 }
