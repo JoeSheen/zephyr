@@ -6,6 +6,7 @@ import com.shoejs.features.auth.AuthService
 import com.shoejs.features.auth.LoginRequest
 import com.shoejs.features.auth.RegisterRequest
 import com.shoejs.features.auth.authRoutes
+import com.shoejs.features.auth.refresh.RefreshTokenService
 import com.shoejs.features.journal.JournalRequest
 import com.shoejs.features.journal.JournalService
 import com.shoejs.features.journal.journalRoutes
@@ -81,7 +82,7 @@ fun Application.configureRouting(config: JwtConfig) {
     }
     routing {
         route("/api/v1") {
-            authRoutes(AuthService(), JwtService(config))
+            authRoutes(AuthService(), JwtService(config), RefreshTokenService())
             tagRoutes(TagService())
             userRoutes(UserService())
             journalRoutes(JournalService())

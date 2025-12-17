@@ -1,9 +1,9 @@
 ktor:
-    application:
-        modules:
-            - com.shoejs.ApplicationKt.module
-    deployment:
-        port: 8080
+  application:
+    modules:
+      - com.shoejs.ApplicationKt.module
+  deployment:
+    port: 8080
 jwt:
   realm: "zephyr-realm"
   secret: "f7G9rQ2vX1mH8pZkL4tB6sW0dN3yJ5uR9aC2eF7hK1qV8xM4oS0bP6wT3lY5nD8"
@@ -14,3 +14,7 @@ postgres:
   driver: "org.postgresql.Driver"
   user: zephyr_admin
   password: password99!
+redis:
+  host: "localhost"
+  port: "6379"
+  password: "3F(c30;r]58;hs0+e1fo"
