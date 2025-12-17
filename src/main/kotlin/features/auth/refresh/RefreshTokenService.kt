@@ -2,19 +2,20 @@ package com.shoejs.features.auth.refresh
 
 class RefreshTokenService {
 
-    suspend fun createAndStoreRefreshToken(userId: Long): RefreshToken {
-        val refreshToken = RefreshToken(userId)
+    suspend fun createAndStoreRefreshToken(userId: Long, username: String): RefreshToken {
+        val refreshToken = RefreshToken("${userId}:${username}")
         RefreshTokenRepository.storeRefreshTokenValue(
-            refreshToken.key, refreshToken.expiration, refreshToken.userId
+            refreshToken.key, refreshToken.expiration, refreshToken.userValue
         )
         return refreshToken
     }
 
-    suspend fun getRefreshTokenValue(refreshTokenKey: String): Long {
-        return RefreshTokenRepository.getRefreshTokenValue(refreshTokenKey)
+    suspend fun getAndRevokeRefreshToken(refreshTokenKey: String): Pair<Long, String>? {
+        return RefreshTokenRepository.getAndRevokeRefreshTokenValue(refreshTokenKey)
+            ?.split(":", limit = 2)?.let { (num, str) -> num.toLong() to str }
     }
 
-    suspend fun deleteRefreshTokenValue(refreshTokenKey: String) {
+    suspend fun deleteRefreshToken(refreshTokenKey: String) {
         RefreshTokenRepository.deleteRefreshTokenValue(refreshTokenKey)
     }
 }

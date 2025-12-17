@@ -12,20 +12,21 @@ object RefreshTokenRepository {
 
     private val redis get() = RedisConnectionManager.commands
 
-    suspend fun storeRefreshTokenValue(refreshTokenKey: String, expiration: Long, userId: Long) {
-        val value = redis.setex(refreshTokenKey, expiration, userId.toString())
-        logger.info("Stored value: [$userId] for key [$refreshTokenKey] - $value")
+    private const val REFRESH_PREFIX = "rft_:"
+
+    suspend fun storeRefreshTokenValue(refreshTokenKey: String, expirationSeconds: Long, userValue: String) {
+        val value = redis.setex("$REFRESH_PREFIX$refreshTokenKey", expirationSeconds, userValue)
+        logger.info("Stored value: [$userValue] for key: [$REFRESH_PREFIX$refreshTokenKey] -> $value")
     }
 
-    suspend fun getRefreshTokenValue(refreshTokenKey: String): Long {
-        val value = redis.get(refreshTokenKey)?.toLong() ?: -1L
-        logger.info("Retrieved value: [$value] for key [$refreshTokenKey]")
+    suspend fun getAndRevokeRefreshTokenValue(refreshTokenKey: String): String? {
+        val value = redis.getdel("$REFRESH_PREFIX$refreshTokenKey")
+        logger.info("Retrieved value: [$value] for key: [$REFRESH_PREFIX$refreshTokenKey]")
         return value
     }
 
     suspend fun deleteRefreshTokenValue(refreshTokenKey: String) {
-        val value = redis.del(refreshTokenKey)
+        val value = redis.del("$REFRESH_PREFIX$refreshTokenKey")
         logger.info("Deleted refresh token value count: [$value]")
-        // Should return a Boolean?
     }
 }

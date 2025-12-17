@@ -22,7 +22,7 @@ fun Route.authRoutes(
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
-            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id)
+            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id, user.username)
 
             call.response.cookies.append(refreshToken.toCookie())
             call.respond(HttpStatusCode.Created, AuthResponse(accessToken, user))
@@ -35,18 +35,32 @@ fun Route.authRoutes(
             )
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
-            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id)
+            val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id, user.username)
 
             call.response.cookies.append(refreshToken.toCookie())
             call.respond(HttpStatusCode.OK, AuthResponse(accessToken, user))
         }
-        post("/refresh") {}
+        post("/refresh/token") {
+            val refreshToken = call.request.cookies["refresh_token"] ?: return@post call.respond(
+                HttpStatusCode.Unauthorized, "No refresh token provided"
+            )
+
+            val (userId, username) = refreshTokenService.getAndRevokeRefreshToken(refreshToken) ?: run {
+                return@post call.respond(HttpStatusCode.Unauthorized, "Refresh token expired or revoked")
+            }
+
+            val accessToken = jwtService.generateAuthToken(username, userId)
+            val newRefreshToken = refreshTokenService.createAndStoreRefreshToken(userId, username)
+
+            call.response.cookies.append(newRefreshToken.toCookie())
+            call.respond(HttpStatusCode.OK, AuthRefreshResponse(accessToken))
+        }
         post("/logout") {
             val refreshToken = call.request.cookies["refresh_token"] ?: return@post call.respond(
                 HttpStatusCode.Unauthorized, "No refresh token provided"
             )
 
-            refreshTokenService.deleteRefreshTokenValue(refreshToken)
+            refreshTokenService.deleteRefreshToken(refreshToken)
 
             call.response.cookies.append(ExpiredRefreshToken().toCookie())
             call.respond(HttpStatusCode.OK, "Successfully logged out")

@@ -18,7 +18,7 @@ interface BaseToken {
 }
 
 data class RefreshToken(
-    val userId: Long,
+    val userValue: String,
     override val key: String = UUID.randomUUID().toString(),
     override val expiration: Long = 1209600
 ) : BaseToken
