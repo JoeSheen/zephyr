@@ -1,4 +1,4 @@
-package com.shoejs.utils
+package com.shoejs.validation
 
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
