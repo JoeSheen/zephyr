@@ -17,24 +17,28 @@ fun Route.userRoutes(userService: UserService) {
             get("/{userId}") {
                 val userId = call.checkUserIdentity()
 
-                userService.getUserById(userId)?.let { userDetailsResponse ->
-                    call.respond(HttpStatusCode.OK, userDetailsResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+                val user = userService.getUserById(userId) ?: return@get call.respond(
+                    HttpStatusCode.NotFound, "User not found"
+                )
+
+                call.respond(HttpStatusCode.OK, user)
             }
             put("/{userId}") {
                 val userId = call.checkUserIdentity()
-                val updateRequest = call.receive<UserUpdateRequest>()
+                val userUpdateRequest = call.receive<UserUpdateRequest>()
 
-                userService.updateUser(userId, updateRequest)?.let { userDetailsResponse ->
-                    call.respond(HttpStatusCode.OK, userDetailsResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+                val user = userService.updateUser(userId, userUpdateRequest) ?: return@put call.respond(
+                    HttpStatusCode.NotFound, "User not found"
+                )
+
+                call.respond(HttpStatusCode.OK, user)
             }
             delete("/{userId}") {
-                call.checkUserIdentity().let { userId ->
-                    when(userService.deleteUserById(userId)) {
-                        true -> call.respond(HttpStatusCode.OK, "User successfully deleted")
-                        false -> call.respond(HttpStatusCode.NotFound, "User not found")
-                    }
+                val userId = call.checkUserIdentity()
+
+                when(userService.deleteUserById(userId)) {
+                    true -> call.respond(HttpStatusCode.OK, "User successfully deleted")
+                    false -> call.respond(HttpStatusCode.NotFound, "User not found")
                 }
             }
         }

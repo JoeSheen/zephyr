@@ -17,37 +17,42 @@ fun Route.tagRoutes(tagService: TagService) {
             post {
                 val tagRequest = call.receive<TagRequest>()
 
-                tagService.createTag(tagRequest)?.let { tagResponse ->
-                    call.respond(HttpStatusCode.Created, tagResponse)
-                } ?: call.respond(HttpStatusCode.BadRequest, "Invalid Tag Request")
+                val tag = tagService.createTag(tagRequest) ?: return@post call.respond(
+                    HttpStatusCode.BadRequest, "Invalid tag request"
+                )
+
+                call.respond(HttpStatusCode.Created, tag)
             }
             get("/{tagId}") {
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@get call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'tagId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                tagService.getTagById(tagId)?.let { tagResponse ->
-                    call.respond(HttpStatusCode.OK, tagResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "Tag not found")
+                val tag = tagService.getTagById(tagId) ?: return@get call.respond(
+                    HttpStatusCode.NotFound, "Tag not found"
+                )
+
+                call.respond(HttpStatusCode.OK, tag)
             }
             get {
-                tagService.getAllTags().let { tags ->
-                    call.respond(HttpStatusCode.OK, tags)
-                }
+                val tags = tagService.getAllTags()
+                call.respond(HttpStatusCode.OK, tags)
             }
             put("/{tagId}") {
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@put call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'tagId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
                 val updateTagRequest = call.receive<TagRequest>()
 
-                tagService.updateTag(tagId, updateTagRequest)?.let { tagResponse ->
-                    call.respond(HttpStatusCode.OK, tagResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "Tag not found")
+                val tag = tagService.updateTag(tagId, updateTagRequest) ?: return@put call.respond(
+                    HttpStatusCode.NotFound, "Tag not found"
+                )
+
+                call.respond(HttpStatusCode.OK, tag)
             }
             delete("/{tagId}") {
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'tagId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
                 when(tagService.deleteTagById(tagId)) {
