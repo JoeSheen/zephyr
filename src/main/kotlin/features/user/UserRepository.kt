@@ -1,7 +1,7 @@
 package com.shoejs.features.user
 
-import com.shoejs.database.tables.Users
-import com.shoejs.database.tables.toUser
+import com.shoejs.infrastructure.database.tables.Users
+import com.shoejs.infrastructure.database.tables.toUser
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger

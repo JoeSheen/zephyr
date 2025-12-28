@@ -17,37 +17,43 @@ fun Route.journalRoutes(journalService: JournalService) {
             post {
                 val journalRequest = call.receive<JournalRequest>()
 
-                journalService.createJournal(journalRequest)?.let { journalResponse ->
-                    call.respond(HttpStatusCode.Created, journalResponse)
-                } ?: call.respond(HttpStatusCode.BadRequest, "Invalid Journal Request")
+                val journal = journalService.createJournal(journalRequest) ?: return@post call.respond(
+                    HttpStatusCode.BadRequest, "Invalid journal request"
+                )
+
+                call.respond(HttpStatusCode.Created, journal)
             }
             get("/{journalId}") {
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@get call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'journalId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
 
-                journalService.getJournalById(journalId)?.let { journalResponse ->
-                    call.respond(HttpStatusCode.OK, journalResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "Journal Not Found")
+                val journal = journalService.getJournalById(journalId) ?: return@get call.respond(
+                    HttpStatusCode.NotFound, "Journal not found"
+                )
+
+                call.respond(HttpStatusCode.OK, journal)
             }
             put("/{journalId}") {
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@put call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'journalId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
                 val updateJournalRequest = call.receive<JournalRequest>()
 
-                journalService.updateJournal(journalId, updateJournalRequest)?.let { journalResponse ->
-                    call.respond(HttpStatusCode.OK, journalResponse)
-                } ?: call.respond(HttpStatusCode.NotFound, "Journal Not Found")
+                val journal = journalService.updateJournal(journalId, updateJournalRequest) ?: return@put call.respond(
+                    HttpStatusCode.NotFound, "Journal not found"
+                )
+
+                call.respond(HttpStatusCode.OK, journal)
             }
             delete("/{journalId}") {
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest, "Path parameter 'journalId' missing in request"
+                    HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
 
                 when(journalService.deleteJournalById(journalId)) {
-                    true -> call.respond(HttpStatusCode.OK, "Journal Successfully deleted")
-                    false -> call.respond(HttpStatusCode.NotFound, "Journal Not Found")
+                    true -> call.respond(HttpStatusCode.OK, "Journal successfully deleted")
+                    false -> call.respond(HttpStatusCode.NotFound, "Journal not found")
                 }
             }
         }

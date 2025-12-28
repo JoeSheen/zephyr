@@ -1,4 +1,4 @@
-package com.shoejs.database.tables
+package com.shoejs.infrastructure.database.tables
 
 import com.shoejs.features.tag.Tag
 import org.jetbrains.exposed.dao.id.LongIdTable

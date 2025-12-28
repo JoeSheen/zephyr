@@ -1,6 +1,6 @@
 package com.shoejs
 
-import com.shoejs.auth.JwtConfig
+import com.shoejs.infrastructure.security.JwtConfig
 import com.shoejs.plugins.configureDatabases
 import com.shoejs.plugins.configureRouting
 import com.shoejs.plugins.configureSecurity

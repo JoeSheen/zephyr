@@ -1,4 +1,4 @@
-package com.shoejs.database.tables
+package com.shoejs.infrastructure.database.tables
 
 import com.shoejs.features.user.Gender
 import com.shoejs.features.user.User

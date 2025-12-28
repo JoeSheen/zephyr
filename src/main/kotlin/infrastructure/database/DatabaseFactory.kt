@@ -1,6 +1,6 @@
-package com.shoejs.database
+package com.shoejs.infrastructure.database
 
-import com.shoejs.database.tables.*
+import com.shoejs.infrastructure.database.tables.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction

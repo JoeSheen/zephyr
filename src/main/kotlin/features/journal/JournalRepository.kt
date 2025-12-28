@@ -1,7 +1,7 @@
 package com.shoejs.features.journal
 
-import com.shoejs.database.tables.Journals
-import com.shoejs.database.tables.toJournal
+import com.shoejs.infrastructure.database.tables.Journals
+import com.shoejs.infrastructure.database.tables.toJournal
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger

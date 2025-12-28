@@ -1,7 +1,7 @@
 package com.shoejs.plugins
 
-import com.shoejs.auth.JwtConfig
-import com.shoejs.auth.JwtService
+import com.shoejs.infrastructure.security.JwtConfig
+import com.shoejs.infrastructure.security.JwtService
 import com.shoejs.features.auth.AuthService
 import com.shoejs.features.auth.LoginRequest
 import com.shoejs.features.auth.RegisterRequest
@@ -16,9 +16,9 @@ import com.shoejs.features.tag.tagRoutes
 import com.shoejs.features.user.UserService
 import com.shoejs.features.user.UserUpdateRequest
 import com.shoejs.features.user.userRoutes
-import com.shoejs.utils.isValidEmail
-import com.shoejs.utils.isValidHexColor
-import com.shoejs.utils.isValidPhoneNumber
+import com.shoejs.validation.isValidEmail
+import com.shoejs.validation.isValidHexColor
+import com.shoejs.validation.isValidPhoneNumber
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation

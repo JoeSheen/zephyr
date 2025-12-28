@@ -1,7 +1,7 @@
 package com.shoejs.features.tag
 
-import com.shoejs.database.tables.Tags
-import com.shoejs.database.tables.toTag
+import com.shoejs.infrastructure.database.tables.Tags
+import com.shoejs.infrastructure.database.tables.toTag
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
