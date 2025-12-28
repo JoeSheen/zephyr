@@ -1,6 +1,6 @@
 package com.shoejs.plugins
 
-import com.shoejs.database.DatabaseFactory
+import com.shoejs.infrastructure.database.DatabaseFactory
 import io.ktor.server.application.Application
 
 fun Application.configureDatabases() {
