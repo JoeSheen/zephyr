@@ -1,6 +1,6 @@
 package com.shoejs.features.auth
 
-import com.shoejs.auth.JwtService
+import com.shoejs.infrastructure.security.JwtService
 import com.shoejs.features.auth.refresh.ExpiredRefreshToken
 import com.shoejs.features.auth.refresh.RefreshTokenService
 import io.ktor.http.HttpStatusCode

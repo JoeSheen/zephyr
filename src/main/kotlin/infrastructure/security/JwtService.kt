@@ -1,4 +1,4 @@
-package com.shoejs.auth
+package com.shoejs.infrastructure.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

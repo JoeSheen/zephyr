@@ -1,4 +1,4 @@
-package com.shoejs.auth
+package com.shoejs.infrastructure.security
 
 import io.ktor.server.config.ApplicationConfig
 

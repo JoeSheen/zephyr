@@ -1,6 +1,6 @@
 package com.shoejs.features.user
 
-import com.shoejs.auth.checkUserIdentity
+import com.shoejs.infrastructure.security.checkUserIdentity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
