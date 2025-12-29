@@ -14,9 +14,13 @@ fun ApplicationCall.checkUserIdentity(pathParam: String = "userId"): Long {
     val userId = parameters[pathParam]?.toLong()
         ?: throw AuthorizationException("Path parameter '$pathParam' missing in request parameters")
 
-    require(userIdClaim == userId) {
+    requireAuthorization(userIdClaim == userId) {
         "Expected user ID to be '$userIdClaim' but was '$userId'"
     }
 
     return userId
+}
+
+private inline fun requireAuthorization(condition: Boolean, lazyMessage: () -> String) {
+    if (!condition) throw AuthorizationException(lazyMessage())
 }

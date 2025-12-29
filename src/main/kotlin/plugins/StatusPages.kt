@@ -6,14 +6,25 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class StatusPageResponse(
+    val statusCode: Int,
+    val message: String
+)
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             if (cause is AuthorizationException) {
-                call.respond(message = "403: ${cause.message}", status = HttpStatusCode.Forbidden)
-            } else if (cause is IllegalArgumentException) {
-                call.respond(message = "400: ${cause.message}", status = HttpStatusCode.BadRequest)
+                val status = HttpStatusCode.Unauthorized
+
+                val response = StatusPageResponse(
+                    status.value, "${cause.message}"
+                )
+
+                call.respond(status, response)
             }
         }
     }
