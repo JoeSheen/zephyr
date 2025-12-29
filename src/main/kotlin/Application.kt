@@ -7,6 +7,7 @@ import com.shoejs.plugins.configureSecurity
 import com.shoejs.plugins.configureSerialization
 import com.shoejs.plugins.configureSwagger
 import com.shoejs.plugins.configureCache
+import com.shoejs.plugins.configureStatusPages
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -25,4 +26,5 @@ fun Application.module() {
     configureRouting(jwtConfig)
     configureSwagger()
     configureCache(host, port)
+    configureStatusPages()
 }
