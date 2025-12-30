@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StatusPageResponse(
     val statusCode: Int,
-    val message: String
+    val message: Map<String, String>
 )
 
 fun Application.configureStatusPages() {
@@ -19,11 +19,9 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             if (cause is AuthorizationException) {
                 val status = HttpStatusCode.Unauthorized
-
                 val response = StatusPageResponse(
-                    status.value, "${cause.message}"
+                    status.value, mapOf("error" to "${cause.message}")
                 )
-
                 call.respond(status, response)
             }
         }
