@@ -45,9 +45,7 @@ fun Route.authRoutes(
                 HttpStatusCode.Unauthorized, "No refresh token provided"
             )
 
-            val (userId, username) = refreshTokenService.getAndRevokeRefreshToken(refreshToken) ?: run {
-                return@post call.respond(HttpStatusCode.Unauthorized, "Refresh token expired or revoked")
-            }
+            val (userId, username) = refreshTokenService.getAndRevokeRefreshToken(refreshToken)
 
             val accessToken = jwtService.generateAuthToken(username, userId)
             val newRefreshToken = refreshTokenService.createAndStoreRefreshToken(userId, username)
