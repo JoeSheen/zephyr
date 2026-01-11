@@ -21,4 +21,5 @@ fun Application.module() {
     configureCache(host, port)
     configureStatusPages()
     configureDefaultHeaders()
+    configureCors()
 }
