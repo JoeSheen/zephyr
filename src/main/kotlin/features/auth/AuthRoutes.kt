@@ -17,9 +17,7 @@ fun Route.authRoutes(
         post("/register") {
             val registerRequest = call.receive<RegisterRequest>()
 
-            val user = authService.registerUser(registerRequest) ?: return@post call.respond(
-                HttpStatusCode.BadRequest, "Invalid registration request"
-            )
+            val user = authService.registerUser(registerRequest)
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
             val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id, user.username)
@@ -30,9 +28,7 @@ fun Route.authRoutes(
         post("/login") {
             val loginRequest = call.receive<LoginRequest>()
 
-            val user = authService.loginUser(loginRequest) ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Invalid username or password"
-            )
+            val user = authService.loginUser(loginRequest)
 
             val accessToken = jwtService.generateAuthToken(user.username, user.id)
             val refreshToken = refreshTokenService.createAndStoreRefreshToken(user.id, user.username)

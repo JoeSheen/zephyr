@@ -1,6 +1,8 @@
 package com.shoejs.plugins
 
 import com.shoejs.features.auth.AuthenticationFailedException
+import com.shoejs.features.auth.AuthenticationFieldFormatException
+import com.shoejs.features.auth.AuthenticationPersistenceException
 import com.shoejs.features.auth.refresh.RefreshTokenRetrievalException
 import com.shoejs.infrastructure.security.AuthorizationException
 import io.ktor.http.HttpStatusCode
@@ -17,6 +19,18 @@ fun Application.configureStatusPages() {
         }
         exception<AuthenticationFailedException> { call, cause ->
             call.respond(status = HttpStatusCode.Unauthorized, message = mapOf("error" to cause.message))
+        }
+        exception<AuthenticationFieldFormatException> { call, cause ->
+            call.respond(
+                status = HttpStatusCode.BadRequest,
+                message = mapOf(
+                    "error" to cause.message,
+                    "field" to cause.getFieldName()
+                )
+            )
+        }
+        exception<AuthenticationPersistenceException> { call, cause ->
+            call.respond(status = HttpStatusCode.InternalServerError, message = mapOf("error" to cause.message))
         }
         exception<RefreshTokenRetrievalException> { call, cause ->
             call.respond(status = HttpStatusCode.Unauthorized, message = mapOf("error" to cause.message))

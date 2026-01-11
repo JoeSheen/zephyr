@@ -4,24 +4,29 @@ import com.shoejs.features.user.UserRepository
 import com.shoejs.features.user.UserResponse
 import com.shoejs.features.user.toUserResponse
 import org.mindrot.jbcrypt.BCrypt
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 class AuthService {
 
-    fun registerUser(registerRequest: RegisterRequest): UserResponse? {
+    private val logger: Logger = LoggerFactory.getLogger(AuthService::class.java)
+
+    fun registerUser(registerRequest: RegisterRequest): UserResponse {
         val (firstName, lastName, dateOfBirthStr, username, email, password) = registerRequest
 
         val dateOfBirth = try {
             LocalDate.parse(dateOfBirthStr, DateTimeFormatter.ISO_DATE)
-        } catch (_: DateTimeParseException) {
-            // TODO: decide if I want to impl and throw custom exceptions
-            //throw Exception(e.message)
-            return null
+        } catch (e: DateTimeParseException) {
+            logger.error("Error parsing date ", e)
+            throw AuthenticationFieldFormatException(
+                "Date of birth is invalid or in the wrong format",
+                e,
+                "dateOfBirth"
+            )
         }
-
-        val passwordHash = BCrypt.hashpw(password, BCrypt.gensalt())
 
         return UserRepository.createUser(
             firstName = firstName,
@@ -29,21 +34,17 @@ class AuthService {
             dateOfBirth = dateOfBirth,
             username = username,
             email = email,
-            password = passwordHash
-        )?.toUserResponse()
+            password = BCrypt.hashpw(password, BCrypt.gensalt())
+        )?.toUserResponse() ?: throw AuthenticationPersistenceException()
     }
 
-    fun loginUser(loginRequest: LoginRequest): UserResponse? {
-        val (username, password) = loginRequest
+    fun loginUser(loginRequest: LoginRequest): UserResponse {
+        val user = UserRepository.getUserByUsername(username = loginRequest.username)
+            ?: throw AuthenticationFailedException()
 
-        val user = UserRepository.getUserByUsername(username)
-            ?: return null
-        // TODO: throw exception?
+        if(!BCrypt.checkpw(loginRequest.password, user.password))
+            throw AuthenticationFailedException()
 
-        val match = BCrypt.checkpw(password, user.password)
-        if (!match) {
-            return null
-        }
         return user.toUserResponse()
     }
 }
