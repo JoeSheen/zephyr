@@ -11,6 +11,7 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 
 fun Application.configureStatusPages() {
     install(plugin = StatusPages) {
@@ -40,6 +41,13 @@ fun Application.configureStatusPages() {
                 status = HttpStatusCode.BadRequest,
                 message = mapOf("error" to "Validation failed: ${cause.reasons.joinToString(".")}")
             )
+        }
+        exception<ExposedSQLException> { call, cause ->
+            if (cause.sqlState == "23505") {
+                call.respond(status = HttpStatusCode.Conflict, message = mapOf("error" to "username is already taken"))
+            } else {
+                call.respond(status = HttpStatusCode.InternalServerError, message = mapOf("error" to cause.message))
+            }
         }
     }
 }
