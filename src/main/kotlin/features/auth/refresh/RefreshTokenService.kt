@@ -10,9 +10,9 @@ class RefreshTokenService {
         return refreshToken
     }
 
-    suspend fun getAndRevokeRefreshToken(refreshTokenKey: String): Pair<Long, String>? {
-        return RefreshTokenRepository.getAndRevokeRefreshTokenValue(refreshTokenKey)
-            ?.split(":", limit = 2)?.let { (num, str) -> num.toLong() to str }
+    suspend fun getAndRevokeRefreshToken(refreshTokenKey: String): Pair<Long, String> {
+        return RefreshTokenRepository.getAndRevokeRefreshTokenValue(refreshTokenKey)?.toRefreshTokenPair()
+            ?: throw RefreshTokenRetrievalException("Refresh token expired or revoked")
     }
 
     suspend fun deleteRefreshToken(refreshTokenKey: String) {
