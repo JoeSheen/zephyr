@@ -4,6 +4,7 @@ import com.shoejs.features.auth.AuthenticationFailedException
 import com.shoejs.features.auth.AuthenticationFieldFormatException
 import com.shoejs.features.auth.AuthenticationPersistenceException
 import com.shoejs.features.auth.refresh.RefreshTokenRetrievalException
+import com.shoejs.infrastructure.database.DatabaseErrorCode
 import com.shoejs.infrastructure.security.AuthorizationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -43,8 +44,12 @@ fun Application.configureStatusPages() {
             )
         }
         exception<ExposedSQLException> { call, cause ->
-            if (cause.sqlState == "23505") {
-                call.respond(status = HttpStatusCode.Conflict, message = mapOf("error" to "username is already taken"))
+            if (cause.sqlState == DatabaseErrorCode.UNIQUE_CONSTRAINT_VIOLATION.code) {
+                val columnName = cause.message?.split("Key (", ")=")?.getOrNull(1) ?: ""
+                call.respond(
+                    status = HttpStatusCode.Conflict,
+                    message = mapOf("error" to "$columnName value violates unique constraint")
+                )
             } else {
                 call.respond(status = HttpStatusCode.InternalServerError, message = mapOf("error" to cause.message))
             }
