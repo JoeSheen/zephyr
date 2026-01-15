@@ -4,16 +4,20 @@ ktor:
       - com.shoejs.ApplicationKt.module
   deployment:
     port: 8080
+    environment: "dev"
+
 jwt:
   realm: "zephyr-realm"
   secret: "f7G9rQ2vX1mH8pZkL4tB6sW0dN3yJ5uR9aC2eF7hK1qV8xM4oS0bP6wT3lY5nD8"
   domain: "https://auth.zephyr.com"
   audience: "zephyr-app"
+
 postgres:
   url: "jdbc:postgresql://localhost:5437/zephyr"
   driver: "org.postgresql.Driver"
   user: zephyr_admin
   password: password99!
+
 redis:
   host: "localhost"
   port: "6379"
