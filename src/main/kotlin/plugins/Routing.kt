@@ -1,6 +1,6 @@
 package com.shoejs.plugins
 
-import com.shoejs.infrastructure.security.JwtConfig
+import com.shoejs.config.JwtConfig
 import com.shoejs.infrastructure.security.JwtService
 import com.shoejs.features.auth.AuthService
 import com.shoejs.features.auth.LoginRequest
