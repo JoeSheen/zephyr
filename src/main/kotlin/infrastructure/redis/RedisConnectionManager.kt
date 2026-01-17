@@ -1,5 +1,6 @@
 package com.shoejs.infrastructure.redis
 
+import com.shoejs.config.RedisConfig
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
@@ -20,11 +21,11 @@ object RedisConnectionManager {
     lateinit var commands: RedisCoroutinesCommands<String, String>
         private set
 
-    fun connect(host: String, port: Int) {
-        redisClient = RedisClient.create("redis://$host:$port")
+    fun connect(config: RedisConfig) {
+        redisClient = RedisClient.create("redis://${config.host}:${config.port}")
         connection = redisClient.connect()
         commands = connection.coroutines()
-        logger.info("Connected to redis cache at redis://$host:$port")
+        logger.info("Connected to redis cache at redis://${config.host}:${config.port}")
     }
 
     fun close() {

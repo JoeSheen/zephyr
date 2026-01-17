@@ -2,7 +2,7 @@ package com.shoejs.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.shoejs.infrastructure.security.JwtConfig
+import com.shoejs.config.JwtConfig
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.JWTPrincipal

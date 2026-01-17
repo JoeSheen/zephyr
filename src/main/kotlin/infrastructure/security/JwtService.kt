@@ -2,6 +2,7 @@ package com.shoejs.infrastructure.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.shoejs.config.JwtConfig
 import java.util.Date
 import java.util.UUID
 

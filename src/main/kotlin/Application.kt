@@ -1,6 +1,6 @@
 package com.shoejs
 
-import com.shoejs.infrastructure.security.JwtConfig
+import com.shoejs.config.JwtConfig
 import com.shoejs.plugins.*
 import io.ktor.server.application.*
 
@@ -9,16 +9,14 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    val jwtConfig = JwtConfig.fromAppConfig(environment.config)
-    val host = environment.config.property("redis.host").getString()
-    val port = environment.config.property("redis.port").getString().toInt()
+    val jwtConfig = JwtConfig.fromEnvironment(environment)
 
     configureSecurity(jwtConfig)
     configureSerialization()
     configureDatabases()
     configureRouting(jwtConfig)
     configureSwagger()
-    configureCache(host, port)
+    configureCache()
     configureStatusPages()
     configureDefaultHeaders()
     configureCors()

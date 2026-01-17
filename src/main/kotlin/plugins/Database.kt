@@ -1,18 +1,11 @@
 package com.shoejs.plugins
 
-import com.shoejs.infrastructure.database.DatabaseFactory
+import com.shoejs.config.DatabaseConfig
+import com.shoejs.infrastructure.database.DatabaseInitializer
 import io.ktor.server.application.Application
 
 fun Application.configureDatabases() {
-    val url = environment.config.property("postgres.url").getString()
-    val driver = environment.config.property("postgres.driver").getString()
-    val user = environment.config.property("postgres.user").getString()
-    val password = environment.config.property("postgres.password").getString()
+    val config = DatabaseConfig.fromEnvironment(environment)
 
-    DatabaseFactory.init(
-        url = url,
-        driver = driver,
-        user = user,
-        password = password
-    )
+    DatabaseInitializer.init(config)
 }
