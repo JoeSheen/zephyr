@@ -10,15 +10,13 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val jwtConfig = JwtConfig.fromAppConfig(environment.config)
-    val host = environment.config.property("redis.host").getString()
-    val port = environment.config.property("redis.port").getString().toInt()
 
     configureSecurity(jwtConfig)
     configureSerialization()
     configureDatabases()
     configureRouting(jwtConfig)
     configureSwagger()
-    configureCache(host, port)
+    configureCache()
     configureStatusPages()
     configureDefaultHeaders()
     configureCors()
