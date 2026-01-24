@@ -26,9 +26,13 @@ object TagRepository {
         Tags.selectAll().where { Tags.id eq id }.firstOrNull()?.toTag()
     }
 
-    fun getAllTags(): List<Tag> = transaction {
+    fun getAllTags(offset: Int, size: Int): List<Tag> = transaction {
         addLogger(StdOutSqlLogger)
-        Tags.selectAll().map { it.toTag() }
+        Tags.selectAll().offset(offset.toLong()).limit(size).map { it.toTag() }
+    }
+
+    fun countTags(): Long = transaction {
+        Tags.selectAll().count()
     }
 
     fun updateTagById(id: Long, name: String, color: String): Tag? = transaction {
