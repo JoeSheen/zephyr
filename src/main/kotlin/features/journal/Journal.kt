@@ -36,3 +36,18 @@ fun Journal.toJournalResponse() = JournalResponse(
     updatedAt = this.updatedAt?.toString(),
     updateCount = this.updateCount
 )
+
+@Serializable
+data class JournalSummaryResponse(
+    val id: Long,
+    val title: String,
+    val createdAt: String,
+    val updatedAt: String?
+)
+
+fun Journal.toJournalSummaryResponse() = JournalSummaryResponse(
+    id = this.id,
+    title = this.title,
+    createdAt = this.createdAt.toString(),
+    updatedAt = this.updatedAt?.toString()
+)

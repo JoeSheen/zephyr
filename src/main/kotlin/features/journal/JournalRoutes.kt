@@ -38,6 +38,7 @@ fun Route.journalRoutes(journalService: JournalService) {
             get {
                 val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                 val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 50
+                val query = call.request.queryParameters["query"]
 
                 requirePagination(page > 0) {
                     "Parameter 'page' must be greater than or equal to 1"
@@ -47,7 +48,7 @@ fun Route.journalRoutes(journalService: JournalService) {
                     "Parameter 'size' must be between 1 and 500"
                 }
 
-                val pageResponse = journalService.getAllJournals(page, size)
+                val pageResponse = journalService.getAllJournals(page, size, query)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{journalId}") {
