@@ -28,6 +28,15 @@ object JournalRepository {
         Journals.selectAll().where { Journals.id eq id }.firstOrNull()?.toJournal()
     }
 
+    fun getAllJournals(offset: Int, size: Int): List<Journal> = transaction {
+        addLogger(StdOutSqlLogger)
+        Journals.selectAll().offset(offset.toLong()).limit(size).map { it.toJournal() }
+    }
+
+    fun countJournals(): Long = transaction {
+        Journals.selectAll().count()
+    }
+
     fun updateJournalById(id: Long, title: String, content: String): Journal? = transaction {
         addLogger(StdOutSqlLogger)
         Journals.update(where = { Journals.id eq id }) { journalRow ->
