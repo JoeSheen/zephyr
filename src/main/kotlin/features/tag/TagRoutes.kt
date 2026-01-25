@@ -1,6 +1,6 @@
 package com.shoejs.features.tag
 
-import com.shoejs.common.pagination.requirePagination
+import com.shoejs.common.query.getQueryParameters
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -36,18 +36,9 @@ fun Route.tagRoutes(tagService: TagService) {
                 call.respond(HttpStatusCode.OK, tag)
             }
             get {
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
+                val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 20)
 
-                requirePagination(page > 0) {
-                    "Parameter 'page' must be greater than or equal to 1"
-                }
-
-                requirePagination(size in 1..500) {
-                    "Parameter 'size' must be between 1 and 500"
-                }
-
-                val pageResponse = tagService.getAllTags(page, size)
+                val pageResponse = tagService.getAllTags(queryParams)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{tagId}") {

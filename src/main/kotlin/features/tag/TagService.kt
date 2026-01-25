@@ -1,6 +1,7 @@
 package com.shoejs.features.tag
 
 import com.shoejs.common.pagination.PageResponse
+import com.shoejs.common.query.QueryParams
 import kotlin.math.ceil
 
 class TagService {
@@ -11,16 +12,15 @@ class TagService {
     fun getTagById(id: Long): TagResponse? =
         TagRepository.getTagById(id = id)?.toTagResponse()
 
-    fun getAllTags(page: Int, size: Int): PageResponse<TagResponse> {
-        val offset = (page - 1) * size
-        val tags = TagRepository.getAllTags(offset, size).map { tag -> tag.toTagResponse() }
+    fun getAllTags(queryParams: QueryParams): PageResponse<TagResponse> {
+        val tags = TagRepository.getAllTags(queryParams).map { tag -> tag.toTagResponse() }
         val totalItems = TagRepository.countTags()
         return PageResponse(
             items = tags,
-            page = page,
-            size = size,
+            page = queryParams.page,
+            size = queryParams.size,
             totalItems = totalItems,
-            totalPages = ceil(totalItems / size.toDouble()).toInt()
+            totalPages = ceil(totalItems / queryParams.size.toDouble()).toInt()
         )
     }
 

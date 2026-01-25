@@ -1,9 +1,12 @@
 package com.shoejs.features.journal
 
+import com.shoejs.common.query.QueryParams
 import com.shoejs.infrastructure.database.tables.Journals
 import com.shoejs.infrastructure.database.tables.toJournal
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.LowerCase
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
@@ -32,11 +35,11 @@ object JournalRepository {
         Journals.selectAll().where { Journals.id eq id }.firstOrNull()?.toJournal()
     }
 
-    fun getAllJournals(offset: Int, size: Int, query: String?): List<Journal> = transaction {
+    fun getAllJournals(queryParams: QueryParams): List<Journal> = transaction {
         addLogger(StdOutSqlLogger)
         val conditions = mutableListOf<Op<Boolean>>()
-        if (!query.isNullOrBlank()) {
-            conditions += (LowerCase(Journals.title) like "%${query.lowercase()}%")
+        if (!queryParams.query.isNullOrBlank()) {
+            conditions += (LowerCase(Journals.title) like "%${queryParams.query.lowercase()}%")
         }
 
         // Note for future work:
@@ -49,12 +52,16 @@ object JournalRepository {
 
         val finalCondition = conditions.reduceOrNull { acc, op -> acc and op }
 
+        val orderByQuery = buildOrderByQuery(queryParams.orderField, queryParams.ascending)
+
+        val offset = ((queryParams.page - 1) * queryParams.size).toLong()
         val queryBuilder = if (finalCondition != null) {
-            Journals.selectAll().where { finalCondition }.offset(start = offset.toLong()).limit(count = size)
+            Journals.selectAll().where { finalCondition }.offset(start = offset).limit(count = queryParams.size)
+                .orderBy(orderByQuery)
         } else {
-            Journals.selectAll().offset(start = offset.toLong()).limit(count = size)
+            Journals.selectAll().offset(start = offset).limit(count = queryParams.size)
+                .orderBy(orderByQuery)
         }
-        // orderBy(Journals.id, SortOrder.DESC)
 
         queryBuilder.map { resultRow -> resultRow.toJournal() }
     }
@@ -84,5 +91,14 @@ object JournalRepository {
     fun deleteJournalById(id: Long): Boolean = transaction {
         addLogger(StdOutSqlLogger)
         Journals.deleteWhere { Journals.id eq id } > 0
+    }
+
+    private fun buildOrderByQuery(orderField: String?, ascending: Boolean): Pair<Column<out Any?>, SortOrder> {
+        return when (orderField) {
+            "title" -> if (ascending) Journals.title to SortOrder.ASC else Journals.title to SortOrder.DESC
+            "createdAt" -> if (ascending) Journals.createdAt to SortOrder.ASC else Journals.createdAt to SortOrder.DESC
+            "updatedAt" -> if (ascending) Journals.updatedAt to SortOrder.ASC else Journals.updatedAt to SortOrder.DESC
+            else -> if (ascending) Journals.id to SortOrder.ASC else Journals.id to SortOrder.DESC
+        }
     }
 }

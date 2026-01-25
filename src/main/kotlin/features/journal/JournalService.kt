@@ -1,6 +1,7 @@
 package com.shoejs.features.journal
 
 import com.shoejs.common.pagination.PageResponse
+import com.shoejs.common.query.QueryParams
 import kotlin.math.ceil
 
 class JournalService {
@@ -13,17 +14,16 @@ class JournalService {
     fun getJournalById(id: Long): JournalResponse? =
         JournalRepository.getJournalById(id = id)?.toJournalResponse()
 
-    fun getAllJournals(page: Int, size: Int, query: String?): PageResponse<JournalSummaryResponse> {
-        val offset = (page - 1) * size
+    fun getAllJournals(queryParams: QueryParams): PageResponse<JournalSummaryResponse> {
         val journals =
-            JournalRepository.getAllJournals(offset, size, query).map { journal -> journal.toJournalSummaryResponse() }
-        val totalItems = JournalRepository.countJournals(query)
+            JournalRepository.getAllJournals(queryParams).map { journal -> journal.toJournalSummaryResponse() }
+        val totalItems = JournalRepository.countJournals(queryParams.query)
         return PageResponse(
             items = journals,
-            page = page,
-            size = size,
+            page = queryParams.page,
+            size = queryParams.size,
             totalItems = totalItems,
-            totalPages = ceil(totalItems / size.toDouble()).toInt()
+            totalPages = ceil(totalItems / queryParams.size.toDouble()).toInt()
         )
     }
 

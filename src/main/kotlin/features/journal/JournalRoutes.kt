@@ -1,6 +1,6 @@
 package com.shoejs.features.journal
 
-import com.shoejs.common.pagination.requirePagination
+import com.shoejs.common.query.getQueryParameters
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -36,19 +36,9 @@ fun Route.journalRoutes(journalService: JournalService) {
                 call.respond(HttpStatusCode.OK, journal)
             }
             get {
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 50
-                val query = call.request.queryParameters["query"]
+                val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 50)
 
-                requirePagination(page > 0) {
-                    "Parameter 'page' must be greater than or equal to 1"
-                }
-
-                requirePagination(size in 1..500) {
-                    "Parameter 'size' must be between 1 and 500"
-                }
-
-                val pageResponse = journalService.getAllJournals(page, size, query)
+                val pageResponse = journalService.getAllJournals(queryParams)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{journalId}") {
