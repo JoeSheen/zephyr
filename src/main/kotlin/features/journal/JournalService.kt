@@ -13,10 +13,11 @@ class JournalService {
     fun getJournalById(id: Long): JournalResponse? =
         JournalRepository.getJournalById(id = id)?.toJournalResponse()
 
-    fun getAllJournals(page: Int, size: Int): PageResponse<JournalResponse> {
+    fun getAllJournals(page: Int, size: Int, query: String?): PageResponse<JournalSummaryResponse> {
         val offset = (page - 1) * size
-        val journals = JournalRepository.getAllJournals(offset, size).map { journal -> journal.toJournalResponse() }
-        val totalItems = JournalRepository.countJournals()
+        val journals =
+            JournalRepository.getAllJournals(offset, size, query).map { journal -> journal.toJournalSummaryResponse() }
+        val totalItems = JournalRepository.countJournals(query)
         return PageResponse(
             items = journals,
             page = page,
