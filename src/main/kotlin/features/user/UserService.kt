@@ -1,6 +1,6 @@
 package com.shoejs.features.user
 
-import com.shoejs.validation.formatPhoneNumber
+import com.shoejs.common.validation.formatPhoneNumber
 
 class UserService {
 

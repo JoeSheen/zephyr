@@ -1,7 +1,10 @@
 package com.shoejs.features.tag
 
+import com.shoejs.common.query.QueryParams
 import com.shoejs.infrastructure.database.tables.Tags
 import com.shoejs.infrastructure.database.tables.toTag
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -26,9 +29,16 @@ object TagRepository {
         Tags.selectAll().where { Tags.id eq id }.firstOrNull()?.toTag()
     }
 
-    fun getAllTags(): List<Tag> = transaction {
+    fun getAllTags(queryParams: QueryParams): List<Tag> = transaction {
         addLogger(StdOutSqlLogger)
-        Tags.selectAll().map { it.toTag() }
+        val orderByQuery = buildOrderByQuery(queryParams.orderField, queryParams.ascending)
+
+        val offset = ((queryParams.page - 1) * queryParams.size).toLong()
+        Tags.selectAll().offset(offset).limit(queryParams.size).orderBy(orderByQuery).map { it.toTag() }
+    }
+
+    fun countTags(): Long = transaction {
+        Tags.selectAll().count()
     }
 
     fun updateTagById(id: Long, name: String, color: String): Tag? = transaction {
@@ -44,6 +54,14 @@ object TagRepository {
     fun deleteTagById(id: Long): Boolean = transaction {
         addLogger(StdOutSqlLogger)
         Tags.deleteWhere { Tags.id eq id } > 0
+    }
+
+    private fun buildOrderByQuery(orderField: String?, ascending: Boolean): Pair<Column<out Any?>, SortOrder> {
+        return when (orderField) {
+            "name" -> if (ascending) Tags.name to SortOrder.ASC else Tags.name to SortOrder.DESC
+            "color" -> if (ascending) Tags.color to SortOrder.ASC else Tags.color to SortOrder.DESC
+            else -> if (ascending) Tags.id to SortOrder.ASC else Tags.id to SortOrder.DESC
+        }
     }
 
 }

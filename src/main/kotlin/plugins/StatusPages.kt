@@ -1,5 +1,6 @@
 package com.shoejs.plugins
 
+import com.shoejs.common.pagination.PaginationInvalidException
 import com.shoejs.features.auth.AuthenticationFailedException
 import com.shoejs.features.auth.AuthenticationFieldFormatException
 import com.shoejs.features.auth.AuthenticationPersistenceException
@@ -36,6 +37,9 @@ fun Application.configureStatusPages() {
         }
         exception<RefreshTokenRetrievalException> { call, cause ->
             call.respond(status = HttpStatusCode.Unauthorized, message = mapOf("error" to cause.message))
+        }
+        exception<PaginationInvalidException> { call, cause ->
+            call.respond(status = HttpStatusCode.BadRequest, message = mapOf("error" to cause.message))
         }
         exception<RequestValidationException> { call, cause ->
             call.respond(

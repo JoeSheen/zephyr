@@ -1,5 +1,6 @@
 package com.shoejs.features.journal
 
+import com.shoejs.common.query.getQueryParameters
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -33,6 +34,12 @@ fun Route.journalRoutes(journalService: JournalService) {
                 )
 
                 call.respond(HttpStatusCode.OK, journal)
+            }
+            get {
+                val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 50)
+
+                val pageResponse = journalService.getAllJournals(queryParams)
+                call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{journalId}") {
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@put call.respond(

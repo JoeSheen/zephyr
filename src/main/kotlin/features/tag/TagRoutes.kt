@@ -1,5 +1,6 @@
 package com.shoejs.features.tag
 
+import com.shoejs.common.query.getQueryParameters
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -35,8 +36,10 @@ fun Route.tagRoutes(tagService: TagService) {
                 call.respond(HttpStatusCode.OK, tag)
             }
             get {
-                val tags = tagService.getAllTags()
-                call.respond(HttpStatusCode.OK, tags)
+                val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 20)
+
+                val pageResponse = tagService.getAllTags(queryParams)
+                call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{tagId}") {
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@put call.respond(

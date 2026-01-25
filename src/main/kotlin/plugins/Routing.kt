@@ -16,9 +16,9 @@ import com.shoejs.features.tag.tagRoutes
 import com.shoejs.features.user.UserService
 import com.shoejs.features.user.UserUpdateRequest
 import com.shoejs.features.user.userRoutes
-import com.shoejs.validation.isValidEmail
-import com.shoejs.validation.isValidHexColor
-import com.shoejs.validation.isValidPhoneNumber
+import com.shoejs.common.validation.isValidEmail
+import com.shoejs.common.validation.isValidHexColor
+import com.shoejs.common.validation.isValidPhoneNumber
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation
