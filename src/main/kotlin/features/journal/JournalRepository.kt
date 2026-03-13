@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -22,12 +22,16 @@ import java.time.LocalDateTime
 
 object JournalRepository {
 
-    fun createJournal(title: String, content: String): Journal? = transaction {
+    fun createJournal(title: String, content: String, userId: Long): Journal = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.insert {
+
+        val savedId = Journals.insertAndGetId {
             it[Journals.title] = title
             it[Journals.content] = content
-        }.resultedValues?.singleOrNull()?.toJournal()
+            it[Journals.authorId] = userId
+        }.value
+
+        Journals.selectAll().where { Journals.id eq savedId }.first().toJournal()
     }
 
     fun getJournalById(id: Long): Journal? = transaction {

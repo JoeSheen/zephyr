@@ -1,6 +1,7 @@
 package com.shoejs.features.journal
 
 import com.shoejs.common.query.getQueryParameters
+import com.shoejs.infrastructure.security.getUserIdentity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -16,9 +17,10 @@ fun Route.journalRoutes(journalService: JournalService) {
     route("/journals") {
         authenticate("jwt-auth") {
             post {
+                val userId = call.getUserIdentity()
                 val journalRequest = call.receive<JournalRequest>()
 
-                val journal = journalService.createJournal(journalRequest) ?: return@post call.respond(
+                val journal = journalService.createJournal(userId, journalRequest) ?: return@post call.respond(
                     HttpStatusCode.BadRequest, "Invalid journal request"
                 )
 
