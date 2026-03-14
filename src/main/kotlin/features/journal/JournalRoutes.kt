@@ -20,9 +20,7 @@ fun Route.journalRoutes(journalService: JournalService) {
                 val userId = call.getUserIdentity()
                 val journalRequest = call.receive<JournalRequest>()
 
-                val journal = journalService.createJournal(userId, journalRequest) ?: return@post call.respond(
-                    HttpStatusCode.BadRequest, "Invalid journal request"
-                )
+                val journal = journalService.createJournal(userId, journalRequest)
 
                 call.respond(HttpStatusCode.Created, journal)
             }
@@ -32,9 +30,7 @@ fun Route.journalRoutes(journalService: JournalService) {
                     HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
 
-                val journal = journalService.getJournalById(userId, journalId) ?: return@get call.respond(
-                    HttpStatusCode.NotFound, "Journal not found"
-                )
+                val journal = journalService.getJournalById(userId, journalId)
 
                 call.respond(HttpStatusCode.OK, journal)
             }
@@ -46,14 +42,13 @@ fun Route.journalRoutes(journalService: JournalService) {
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{journalId}") {
+                val userId = call.getUserIdentity()
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@put call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
                 val updateJournalRequest = call.receive<JournalRequest>()
 
-                val journal = journalService.updateJournal(journalId, updateJournalRequest) ?: return@put call.respond(
-                    HttpStatusCode.NotFound, "Journal not found"
-                )
+                val journal = journalService.updateJournal(userId, journalId, updateJournalRequest)
 
                 call.respond(HttpStatusCode.OK, journal)
             }

@@ -7,35 +7,30 @@ import kotlin.math.ceil
 
 class JournalService {
 
-    // TODO: JournalResponse? vs JournalResponse
-    fun createJournal(userId: Long, journalRequest: JournalRequest): JournalResponse? {
+    fun createJournal(userId: Long, journalRequest: JournalRequest): JournalResponse {
         return JournalRepository.createJournal(
             title = journalRequest.title, content = journalRequest.content, userId = userId
         ).let { savedJournal ->
-            val username = UserRepository.getUserById(savedJournal.authorId)!!.username // <-- TODO: FIX THIS LINE
+            val username = this.getUsernameForJournalAuthor(savedJournal.authorId)
             savedJournal.toJournalResponse(username)
         }
     }
 
-    // TODO: JournalResponse? vs JournalResponse
-    fun getJournalById(userId: Long, journalId: Long): JournalResponse? {
+    fun getJournalById(userId: Long, journalId: Long): JournalResponse {
         return JournalRepository.getJournalById(userId, journalId).let { journal ->
-            val username = UserRepository.getUserById(journal.authorId)!!.username // <-- TODO: FIX THIS LINE
+            val username = this.getUsernameForJournalAuthor(journal.authorId)
             journal.toJournalResponse(username)
         }
     }
 
     fun getAllJournals(userId: Long, queryParams: QueryParams): PageResponse<JournalSummaryResponse> {
+        val usernameCache = mutableMapOf<Long, String>() // Test to see if this actually improves performance
         val journals = JournalRepository.getAllJournals(userId, queryParams).map { journal ->
-            val username = UserRepository.getUserById(journal.authorId)!!.username // <-- TODO: FIX THIS LINE
+            val username = usernameCache.getOrPut(journal.authorId) {
+                this.getUsernameForJournalAuthor(journal.authorId)
+            }
             journal.toJournalSummaryResponse(username)
         }
-        /*
-        TODO: In future add something like:
-            val authorIds = journals.map { it.authorId }.distinct()
-            val usersById = UserRepository.getUsersByIds(authorIds).associateBy { it.id }
-            So multiple calls to the UserRepository aren't needed to get the same username
-         */
 
         val totalItems = JournalRepository.countJournals(userId, queryParams.query)
 
@@ -48,11 +43,16 @@ class JournalService {
         )
     }
 
-    fun updateJournal(id: Long, journalRequest: JournalRequest): JournalResponse? =
-        JournalRepository.updateJournalById(
-            id = id, title = journalRequest.title, content = journalRequest.content
-        )?.toJournalResponse("")
+    fun updateJournal(userId: Long, journalId: Long, journalRequest: JournalRequest): JournalResponse {
+        return JournalRepository.updateJournalById(userId, journalId, journalRequest.title, journalRequest.content)
+            .let { journal ->
+                val username = this.getUsernameForJournalAuthor(journal.authorId)
+                journal.toJournalResponse(username)
+            }
+    }
 
     fun deleteJournalById(userId: Long, journalId: Long): Boolean =
         JournalRepository.deleteJournalById(userId, journalId)
+
+    private fun getUsernameForJournalAuthor(userId: Long): String = UserRepository.getUsernameForUserId(userId)
 }

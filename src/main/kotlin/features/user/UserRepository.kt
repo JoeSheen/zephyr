@@ -44,6 +44,12 @@ object UserRepository {
         Users.selectAll().where { Users.id eq id }.firstOrNull()?.toUser()
     }
 
+    fun getUsernameForUserId(id: Long): String = transaction {
+        addLogger(StdOutSqlLogger)
+        // TODO: handle NoSuchElementException thrown by first() call when refactoring users!
+        Users.select(Users.username).where { Users.id eq id }.first()[Users.username]
+    }
+
     fun updateUserById(
         id: Long,
         username: String?,

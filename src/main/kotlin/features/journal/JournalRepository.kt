@@ -76,17 +76,24 @@ object JournalRepository {
         Journals.selectAll().where { condition }.count()
     }
 
-    fun updateJournalById(id: Long, title: String, content: String): Journal? = transaction {
+    fun updateJournalById(userId: Long, journalId: Long, title: String, content: String): Journal = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.update(where = { Journals.id eq id }) { journalRow ->
+
+        val rowsUpdated = Journals.update(
+            where = { (Journals.id eq journalId) and (Journals.authorId eq userId) }) { journalRow ->
+            journalRow[Journals.title] = title
+            journalRow[Journals.content] = content
+            journalRow[Journals.updatedAt] = LocalDateTime.now()
             with(receiver = SqlExpressionBuilder) {
-                journalRow[Journals.title] = title
-                journalRow[Journals.content] = content
-                journalRow[Journals.updatedAt] = LocalDateTime.now()
                 journalRow.update(column = Journals.updateCount, value = Journals.updateCount + 1)
             }
         }
-        getJournalById(id, 7)
+
+        if (rowsUpdated == 0) {
+            throw JournalNotAccessibleException("Journal $journalId not found or you are not the author")
+        }
+
+        getJournalById(userId, journalId)
     }
 
     fun deleteJournalById(userId: Long, journalId: Long): Boolean = transaction {
