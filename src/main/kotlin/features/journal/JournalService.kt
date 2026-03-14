@@ -17,13 +17,28 @@ class JournalService {
         }
     }
 
-    fun getJournalById(id: Long): JournalResponse? =
-        JournalRepository.getJournalById(id = id)?.toJournalResponse("")
+    // TODO: JournalResponse? vs JournalResponse
+    fun getJournalById(userId: Long, journalId: Long): JournalResponse? {
+        return JournalRepository.getJournalById(userId, journalId).let { journal ->
+            val username = UserRepository.getUserById(journal.authorId)!!.username // <-- TODO: FIX THIS LINE
+            journal.toJournalResponse(username)
+        }
+    }
 
-    fun getAllJournals(queryParams: QueryParams): PageResponse<JournalSummaryResponse> {
-        val journals =
-            JournalRepository.getAllJournals(queryParams).map { journal -> journal.toJournalSummaryResponse("") }
-        val totalItems = JournalRepository.countJournals(queryParams.query)
+    fun getAllJournals(userId: Long, queryParams: QueryParams): PageResponse<JournalSummaryResponse> {
+        val journals = JournalRepository.getAllJournals(userId, queryParams).map { journal ->
+            val username = UserRepository.getUserById(journal.authorId)!!.username // <-- TODO: FIX THIS LINE
+            journal.toJournalSummaryResponse(username)
+        }
+        /*
+        TODO: In future add something like:
+            val authorIds = journals.map { it.authorId }.distinct()
+            val usersById = UserRepository.getUsersByIds(authorIds).associateBy { it.id }
+            So multiple calls to the UserRepository aren't needed to get the same username
+         */
+
+        val totalItems = JournalRepository.countJournals(userId, queryParams.query)
+
         return PageResponse(
             items = journals,
             page = queryParams.page,
@@ -38,6 +53,6 @@ class JournalService {
             id = id, title = journalRequest.title, content = journalRequest.content
         )?.toJournalResponse("")
 
-    fun deleteJournalById(id: Long): Boolean =
-        JournalRepository.deleteJournalById(id = id)
+    fun deleteJournalById(userId: Long, journalId: Long): Boolean =
+        JournalRepository.deleteJournalById(userId, journalId)
 }

@@ -27,20 +27,22 @@ fun Route.journalRoutes(journalService: JournalService) {
                 call.respond(HttpStatusCode.Created, journal)
             }
             get("/{journalId}") {
+                val userId = call.getUserIdentity()
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@get call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
 
-                val journal = journalService.getJournalById(journalId) ?: return@get call.respond(
+                val journal = journalService.getJournalById(userId, journalId) ?: return@get call.respond(
                     HttpStatusCode.NotFound, "Journal not found"
                 )
 
                 call.respond(HttpStatusCode.OK, journal)
             }
             get {
+                val userId = call.getUserIdentity()
                 val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 50)
 
-                val pageResponse = journalService.getAllJournals(queryParams)
+                val pageResponse = journalService.getAllJournals(userId, queryParams)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{journalId}") {
@@ -56,11 +58,12 @@ fun Route.journalRoutes(journalService: JournalService) {
                 call.respond(HttpStatusCode.OK, journal)
             }
             delete("/{journalId}") {
+                val userId = call.getUserIdentity()
                 val journalId = call.parameters["journalId"]?.toLong() ?: return@delete call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'journalId' is invalid or blank"
                 )
 
-                when(journalService.deleteJournalById(journalId)) {
+                when(journalService.deleteJournalById(userId, journalId)) {
                     true -> call.respond(HttpStatusCode.OK, "Journal successfully deleted")
                     false -> call.respond(HttpStatusCode.NotFound, "Journal not found")
                 }

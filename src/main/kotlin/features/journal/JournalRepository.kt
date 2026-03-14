@@ -34,49 +34,46 @@ object JournalRepository {
         Journals.selectAll().where { Journals.id eq savedId }.first().toJournal()
     }
 
-    fun getJournalById(id: Long): Journal? = transaction {
+    fun getJournalById(userId: Long, journalId: Long): Journal = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.selectAll().where { Journals.id eq id }.firstOrNull()?.toJournal()
+
+        try {
+            Journals.selectAll().where {
+                (Journals.id eq journalId) and (Journals.authorId eq userId)
+            }.first().toJournal()
+        } catch (e: NoSuchElementException) {
+            throw JournalResourceNotFoundException("Journal with [id: $journalId] does not exist", e)
+        }
     }
 
-    fun getAllJournals(queryParams: QueryParams): List<Journal> = transaction {
+    fun getAllJournals(userId: Long, queryParams: QueryParams): List<Journal> = transaction {
         addLogger(StdOutSqlLogger)
-        val conditions = mutableListOf<Op<Boolean>>()
+
+        val conditions = mutableListOf(Journals.authorId eq userId)
+
         if (!queryParams.query.isNullOrBlank()) {
             conditions += (LowerCase(Journals.title) like "%${queryParams.query.lowercase()}%")
         }
 
-        // Note for future work:
-        // Things like checking author/user can be done like so:
-        /*
-        if (!author.isNullOrBlank()) {
-            conditions += Blogs.author eq author
-        }
-         */
-
-        val finalCondition = conditions.reduceOrNull { acc, op -> acc and op }
+        val finalCondition = conditions.reduce { acc, op -> acc and op }
 
         val orderByQuery = buildOrderByQuery(queryParams.orderField, queryParams.ascending)
 
         val offset = ((queryParams.page - 1) * queryParams.size).toLong()
-        val queryBuilder = if (finalCondition != null) {
-            Journals.selectAll().where { finalCondition }.offset(start = offset).limit(count = queryParams.size)
-                .orderBy(orderByQuery)
-        } else {
-            Journals.selectAll().offset(start = offset).limit(count = queryParams.size)
-                .orderBy(orderByQuery)
-        }
 
-        queryBuilder.map { resultRow -> resultRow.toJournal() }
+        Journals.selectAll().where { finalCondition }.offset(start = offset).limit(count = queryParams.size)
+            .orderBy(orderByQuery).map { resultRow -> resultRow.toJournal() }
     }
 
-    fun countJournals(query: String?): Long = transaction {
+    fun countJournals(userId: Long, query: String?): Long = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.selectAll().apply {
-            if (!query.isNullOrBlank()) {
-                where { LowerCase(Journals.title) like "%${query.lowercase()}%" }
-            }
-        }.count()
+        var condition: Op<Boolean> = Journals.authorId eq userId
+
+        if (!query.isNullOrBlank()) {
+            condition = condition and (LowerCase(Journals.title) like "%${query.lowercase()}%")
+        }
+
+        Journals.selectAll().where { condition }.count()
     }
 
     fun updateJournalById(id: Long, title: String, content: String): Journal? = transaction {
@@ -89,12 +86,12 @@ object JournalRepository {
                 journalRow.update(column = Journals.updateCount, value = Journals.updateCount + 1)
             }
         }
-        getJournalById(id)
+        getJournalById(id, 7)
     }
 
-    fun deleteJournalById(id: Long): Boolean = transaction {
+    fun deleteJournalById(userId: Long, journalId: Long): Boolean = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.deleteWhere { Journals.id eq id } > 0
+        Journals.deleteWhere { (Journals.id eq journalId) and (Journals.authorId eq userId) } > 0
     }
 
     private fun buildOrderByQuery(orderField: String?, ascending: Boolean): Pair<Column<out Any?>, SortOrder> {
