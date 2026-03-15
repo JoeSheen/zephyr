@@ -1,20 +1,26 @@
 package com.shoejs.features.journal
 
 import com.shoejs.common.query.QueryParams
+import com.shoejs.infrastructure.database.tables.JournalTags
 import com.shoejs.infrastructure.database.tables.Journals
+import com.shoejs.infrastructure.database.tables.Tags
 import com.shoejs.infrastructure.database.tables.toJournal
+import com.shoejs.infrastructure.database.tables.toTag
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.LowerCase
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -22,75 +28,122 @@ import java.time.LocalDateTime
 
 object JournalRepository {
 
-    fun createJournal(title: String, content: String): Journal? = transaction {
+    fun createJournal(userId: Long, journalRequest: JournalRequest): JournalWithTags = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.insert {
-            it[Journals.title] = title
-            it[Journals.content] = content
-        }.resultedValues?.singleOrNull()?.toJournal()
+
+        val savedId = Journals.insertAndGetId {
+            it[Journals.title] = journalRequest.title
+            it[Journals.content] = journalRequest.content
+            it[Journals.authorId] = userId
+        }.value
+
+        journalRequest.tagIds.forEach { tagId ->
+            JournalTags.insert {
+                it[JournalTags.journalId] = savedId
+                it[JournalTags.tagId] = tagId
+            }
+        }
+
+        val journal = Journals.selectAll().where { (Journals.id eq savedId) }.first().toJournal()
+
+        val tags = Tags.join(JournalTags, JoinType.INNER, Tags.id, JournalTags.tagId).selectAll()
+            .where { JournalTags.journalId eq savedId }.map { row -> row.toTag() }.toSet()
+
+        JournalWithTags(journal, tags)
     }
 
-    fun getJournalById(id: Long): Journal? = transaction {
+    fun getJournalById(userId: Long, journalId: Long): JournalWithTags = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.selectAll().where { Journals.id eq id }.firstOrNull()?.toJournal()
+
+        val journal: Journal
+        try {
+            journal = Journals.selectAll().where {
+                (Journals.id eq journalId) and (Journals.authorId eq userId)
+            }.first().toJournal()
+        } catch (e: NoSuchElementException) {
+            throw JournalResourceNotFoundException("Journal with [id: $journalId] does not exist", e)
+        }
+
+        val tags = Tags.join(JournalTags, JoinType.INNER, Tags.id, JournalTags.tagId).selectAll()
+            .where { (JournalTags.journalId eq journal.id) }.map { row -> row.toTag() }.toSet()
+
+        JournalWithTags(journal, tags)
     }
 
-    fun getAllJournals(queryParams: QueryParams): List<Journal> = transaction {
+    fun getAllJournals(userId: Long, queryParams: QueryParams): List<Journal> = transaction {
         addLogger(StdOutSqlLogger)
-        val conditions = mutableListOf<Op<Boolean>>()
+
+        val conditions = mutableListOf(Journals.authorId eq userId)
+
         if (!queryParams.query.isNullOrBlank()) {
             conditions += (LowerCase(Journals.title) like "%${queryParams.query.lowercase()}%")
         }
 
-        // Note for future work:
-        // Things like checking author/user can be done like so:
-        /*
-        if (!author.isNullOrBlank()) {
-            conditions += Blogs.author eq author
-        }
-         */
-
-        val finalCondition = conditions.reduceOrNull { acc, op -> acc and op }
+        val finalCondition = conditions.reduce { acc, op -> acc and op }
 
         val orderByQuery = buildOrderByQuery(queryParams.orderField, queryParams.ascending)
 
         val offset = ((queryParams.page - 1) * queryParams.size).toLong()
-        val queryBuilder = if (finalCondition != null) {
-            Journals.selectAll().where { finalCondition }.offset(start = offset).limit(count = queryParams.size)
-                .orderBy(orderByQuery)
-        } else {
-            Journals.selectAll().offset(start = offset).limit(count = queryParams.size)
-                .orderBy(orderByQuery)
+
+        Journals.selectAll().where { finalCondition }.offset(start = offset).limit(count = queryParams.size)
+            .orderBy(orderByQuery).map { resultRow -> resultRow.toJournal() }
+    }
+
+    fun countJournals(userId: Long, query: String?): Long = transaction {
+        addLogger(StdOutSqlLogger)
+        var condition: Op<Boolean> = Journals.authorId eq userId
+
+        if (!query.isNullOrBlank()) {
+            condition = condition and (LowerCase(Journals.title) like "%${query.lowercase()}%")
         }
 
-        queryBuilder.map { resultRow -> resultRow.toJournal() }
+        Journals.selectAll().where { condition }.count()
     }
 
-    fun countJournals(query: String?): Long = transaction {
-        addLogger(StdOutSqlLogger)
-        Journals.selectAll().apply {
-            if (!query.isNullOrBlank()) {
-                where { LowerCase(Journals.title) like "%${query.lowercase()}%" }
-            }
-        }.count()
-    }
+    fun updateJournalById(userId: Long, journalId: Long, journalRequest: JournalRequest): JournalWithTags =
+        transaction {
+            addLogger(StdOutSqlLogger)
 
-    fun updateJournalById(id: Long, title: String, content: String): Journal? = transaction {
-        addLogger(StdOutSqlLogger)
-        Journals.update(where = { Journals.id eq id }) { journalRow ->
-            with(receiver = SqlExpressionBuilder) {
-                journalRow[Journals.title] = title
-                journalRow[Journals.content] = content
+            val rowsUpdated = Journals.update(
+                where = { (Journals.id eq journalId) and (Journals.authorId eq userId) }) { journalRow ->
+                journalRow[Journals.title] = journalRequest.title
+                journalRow[Journals.content] = journalRequest.content
                 journalRow[Journals.updatedAt] = LocalDateTime.now()
-                journalRow.update(column = Journals.updateCount, value = Journals.updateCount + 1)
+                with(receiver = SqlExpressionBuilder) {
+                    journalRow.update(column = Journals.updateCount, value = Journals.updateCount + 1)
+                }
             }
-        }
-        getJournalById(id)
-    }
 
-    fun deleteJournalById(id: Long): Boolean = transaction {
+            if (rowsUpdated == 0) {
+                throw JournalNotAccessibleException("Journal $journalId not found or you are not the author")
+            }
+
+            // Get current tag IDs
+            val currentTagIds = JournalTags.select(JournalTags.tagId).where { JournalTags.journalId eq journalId }
+                .map { row -> row[JournalTags.tagId].value }
+
+            // Calculate which to remove and which to add
+            val tagsToRemove = currentTagIds.minus(journalRequest.tagIds)
+            val tagsToAdd = journalRequest.tagIds.minus(currentTagIds)
+
+            // Delete old tags
+            if (tagsToRemove.isNotEmpty()) {
+                JournalTags.deleteWhere { (JournalTags.journalId eq journalId) and (JournalTags.tagId inList tagsToRemove) }
+            }
+
+            // Insert new tags
+            tagsToAdd.forEach { tagId ->
+                JournalTags.insert {
+                    it[JournalTags.journalId] = journalId
+                    it[JournalTags.tagId] = tagId
+                }
+            }
+            getJournalById(userId, journalId)
+        }
+
+    fun deleteJournalById(userId: Long, journalId: Long): Boolean = transaction {
         addLogger(StdOutSqlLogger)
-        Journals.deleteWhere { Journals.id eq id } > 0
+        Journals.deleteWhere { (Journals.id eq journalId) and (Journals.authorId eq userId) } > 0
     }
 
     private fun buildOrderByQuery(orderField: String?, ascending: Boolean): Pair<Column<out Any?>, SortOrder> {

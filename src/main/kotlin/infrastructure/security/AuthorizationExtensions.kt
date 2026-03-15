@@ -5,11 +5,7 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 
 fun ApplicationCall.checkUserIdentity(pathParam: String = "userId"): Long {
-    val principal = principal<JWTPrincipal>()
-        ?: throw AuthorizationException("Invalid JWT principal")
-
-    val userIdClaim = principal.payload.getClaim(pathParam)?.asLong()
-        ?: throw AuthorizationException("JWT does not contain '$pathParam' claim")
+    val userIdClaim = this.getUserIdentity(pathParam)
 
     val userId = parameters[pathParam]?.toLong()
         ?: throw AuthorizationException("Path parameter '$pathParam' missing in request parameters")
@@ -19,6 +15,13 @@ fun ApplicationCall.checkUserIdentity(pathParam: String = "userId"): Long {
     }
 
     return userId
+}
+
+fun ApplicationCall.getUserIdentity(pathParam: String = "userId"): Long {
+    val principal = principal<JWTPrincipal>()
+        ?: throw AuthorizationException("Invalid JWT principal")
+    return principal.payload.getClaim(pathParam)?.asLong()
+        ?: throw AuthorizationException("JWT does not contain '$pathParam' claim")
 }
 
 private inline fun requireAuthorization(condition: Boolean, lazyMessage: () -> String) {
