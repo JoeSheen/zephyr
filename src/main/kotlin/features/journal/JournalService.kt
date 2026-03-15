@@ -2,24 +2,25 @@ package com.shoejs.features.journal
 
 import com.shoejs.common.pagination.PageResponse
 import com.shoejs.common.query.QueryParams
+import com.shoejs.features.tag.toTagResponse
 import com.shoejs.features.user.UserRepository
 import kotlin.math.ceil
 
 class JournalService {
 
     fun createJournal(userId: Long, journalRequest: JournalRequest): JournalResponse {
-        return JournalRepository.createJournal(
-            title = journalRequest.title, content = journalRequest.content, userId = userId
-        ).let { savedJournal ->
+        return JournalRepository.createJournal(userId, journalRequest).let { (savedJournal, tags) ->
             val username = this.getUsernameForJournalAuthor(savedJournal.authorId)
-            savedJournal.toJournalResponse(username)
+            val tagResponses = tags.map { tag -> tag.toTagResponse() }.toSet()
+            savedJournal.toJournalResponse(username, tagResponses)
         }
     }
 
     fun getJournalById(userId: Long, journalId: Long): JournalResponse {
-        return JournalRepository.getJournalById(userId, journalId).let { journal ->
+        return JournalRepository.getJournalById(userId, journalId).let { (journal, tags) ->
             val username = this.getUsernameForJournalAuthor(journal.authorId)
-            journal.toJournalResponse(username)
+            val tagResponses = tags.map { tag -> tag.toTagResponse() }.toSet()
+            journal.toJournalResponse(username, tagResponses)
         }
     }
 
@@ -44,11 +45,11 @@ class JournalService {
     }
 
     fun updateJournal(userId: Long, journalId: Long, journalRequest: JournalRequest): JournalResponse {
-        return JournalRepository.updateJournalById(userId, journalId, journalRequest.title, journalRequest.content)
-            .let { journal ->
-                val username = this.getUsernameForJournalAuthor(journal.authorId)
-                journal.toJournalResponse(username)
-            }
+        return JournalRepository.updateJournalById(userId, journalId, journalRequest).let { (journal, tags) ->
+            val username = this.getUsernameForJournalAuthor(journal.authorId)
+            val tagResponses = tags.map { tag -> tag.toTagResponse() }.toSet()
+            journal.toJournalResponse(username, tagResponses)
+        }
     }
 
     fun deleteJournalById(userId: Long, journalId: Long): Boolean =
