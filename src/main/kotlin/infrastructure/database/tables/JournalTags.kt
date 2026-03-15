@@ -8,13 +8,11 @@ object JournalTags : Table() {
         name = "journal_id",
         refColumn = Journals.id,
         onDelete = ReferenceOption.CASCADE,
-        onUpdate = ReferenceOption.CASCADE,
     )
 
     val tagId = reference(
         name = "tag_id",
         refColumn = Tags.id,
-        onUpdate = ReferenceOption.CASCADE,
         onDelete = ReferenceOption.CASCADE,
     )
 
