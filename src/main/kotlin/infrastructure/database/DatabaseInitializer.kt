@@ -25,6 +25,7 @@ object DatabaseInitializer {
             SchemaUtils.create(Users)
             SchemaUtils.create(Tags)
             SchemaUtils.create(Journals)
+            SchemaUtils.create(JournalTags)
         }
 
         logger.info("Connected to postgres database at ${config.url}")
