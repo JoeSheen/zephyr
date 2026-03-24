@@ -11,7 +11,8 @@ data class Tag(
 @Serializable
 data class TagRequest(
     val name: String,
-    val hexColor: String
+    val hexColor: String,
+    val isPublic: Boolean = false,
 )
 
 @Serializable

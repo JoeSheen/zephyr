@@ -7,7 +7,7 @@ import kotlin.math.ceil
 class TagService {
 
     fun createTag(tagRequest: TagRequest): TagResponse? =
-        TagRepository.saveTag(name = tagRequest.name, color = tagRequest.hexColor)?.toTagResponse()
+        TagRepository.saveTag(tagRequest).toTagResponse()
 
     fun getTagById(id: Long): TagResponse? =
         TagRepository.getTagById(id = id)?.toTagResponse()
