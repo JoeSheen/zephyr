@@ -1,6 +1,7 @@
 package com.shoejs.features.tag
 
 import com.shoejs.common.query.getQueryParameters
+import com.shoejs.infrastructure.security.getUserIdentity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -16,20 +17,22 @@ fun Route.tagRoutes(tagService: TagService) {
     route("/tags") {
         authenticate("jwt-auth") {
             post {
+                val userId = call.getUserIdentity()
                 val tagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.createTag(tagRequest) ?: return@post call.respond(
+                val tag = tagService.createTag(userId, tagRequest) ?: return@post call.respond(
                     HttpStatusCode.BadRequest, "Invalid tag request"
                 )
 
                 call.respond(HttpStatusCode.Created, tag)
             }
             get("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@get call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                val tag = tagService.getTagById(tagId) ?: return@get call.respond(
+                val tag = tagService.getTagById(userId, tagId) ?: return@get call.respond(
                     HttpStatusCode.NotFound, "Tag not found"
                 )
 

@@ -6,11 +6,11 @@ import kotlin.math.ceil
 
 class TagService {
 
-    fun createTag(tagRequest: TagRequest): TagResponse? =
-        TagRepository.saveTag(tagRequest).toTagResponse()
+    fun createTag(userId: Long, tagRequest: TagRequest): TagResponse? =
+        TagRepository.saveTag(userId, tagRequest).toTagResponse()
 
-    fun getTagById(id: Long): TagResponse? =
-        TagRepository.getTagById(id = id)?.toTagResponse()
+    fun getTagById(userId: Long, tagId: Long): TagResponse? =
+        TagRepository.getTagById(userId, tagId)?.toTagResponse()
 
     fun getAllTags(queryParams: QueryParams): PageResponse<TagResponse> {
         val tags = TagRepository.getAllTags(queryParams).map { tag -> tag.toTagResponse() }

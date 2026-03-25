@@ -8,29 +8,34 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 object TagRepository {
 
-    fun saveTag(tagRequest: TagRequest): Tag = transaction {
+    fun saveTag(userId: Long, tagRequest: TagRequest): Tag = transaction {
         addLogger(StdOutSqlLogger)
 
         val savedId = Tags.insertAndGetId {
             it[Tags.name] = tagRequest.name
             it[Tags.color] = tagRequest.hexColor
             it[Tags.isPublic] = tagRequest.isPublic
+            it[Tags.userId] = userId
         }.value
 
         Tags.selectAll().where { (Tags.id eq savedId) }.first().toTag()
     }
 
-    fun getTagById(id: Long): Tag? = transaction {
+    fun getTagById(userId: Long, tagId: Long): Tag? = transaction {
         addLogger(StdOutSqlLogger)
-        Tags.selectAll().where { Tags.id eq id }.firstOrNull()?.toTag()
+
+        Tags.selectAll().where { (Tags.id eq tagId) and ((Tags.userId eq userId) or Tags.isPublic) }
+            .map { it.toTag() }.singleOrNull() ?: throw RuntimeException("")
     }
 
     fun getAllTags(queryParams: QueryParams): List<Tag> = transaction {
@@ -52,7 +57,7 @@ object TagRepository {
             tagRow[Tags.color] = color
         }
         if (row == 0) return@transaction null
-        getTagById(id)
+        getTagById(id, 0)
     }
 
     fun deleteTagById(id: Long): Boolean = transaction {
