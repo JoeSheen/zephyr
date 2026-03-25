@@ -1,6 +1,7 @@
 package com.shoejs.plugins
 
 import com.shoejs.common.pagination.PaginationInvalidException
+import com.shoejs.common.validation.InvalidPhoneNumberException
 import com.shoejs.features.auth.AuthenticationFailedException
 import com.shoejs.features.auth.AuthenticationFieldFormatException
 import com.shoejs.features.auth.AuthenticationPersistenceException
@@ -65,6 +66,9 @@ fun Application.configureStatusPages() {
         }
         exception<JournalNotAccessibleException> { call, cause ->
             call.respond(status = HttpStatusCode.Forbidden, message = mapOf("error" to cause.message))
+        }
+        exception<InvalidPhoneNumberException> { call, cause ->
+            call.respond(status = HttpStatusCode.BadRequest, message = mapOf("error" to cause.message))
         }
     }
 }

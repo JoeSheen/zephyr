@@ -28,7 +28,7 @@ data class UserUpdateRequest(
     val email: String?,
     val gender: String?,
     val phoneNumber: String?,
-    val countryCode: String?
+    val countryCode: String = "GB",
 )
 
 @Serializable

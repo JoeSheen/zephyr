@@ -21,28 +21,22 @@ fun isValidHexColor(color: String): Pair<Boolean, String?> {
     else true to null
 }
 
-fun isValidPhoneNumber(numberToParse: String, defaultRegion: String? = null): Pair<Boolean, String?> {
-    val region = defaultRegion ?: "GB"
+fun isValidPhoneNumber(numberToParse: String, defaultRegion: String): Pair<Boolean, String?> {
     return try {
-        val phoneNumber = phoneUtil.parse(numberToParse, region)
-        if (phoneUtil.isValidNumberForRegion(phoneNumber, region)) {
-            true to null
-        } else {
-            false to "Invalid phone number for region '$region'"
-        }
+        val phoneNumber = phoneUtil.parse(numberToParse, defaultRegion)
+        if (phoneUtil.isValidNumberForRegion(phoneNumber, defaultRegion)) true to null
+        else false to "Invalid phone number for region '$defaultRegion'"
     } catch (e: NumberParseException) {
         false to "Failed to parse phone number: ${e.message}"
     }
 }
 
-fun formatPhoneNumber(numberToParse: String?, defaultRegion: String? = null): String? {
-    val region = defaultRegion ?: "GB"
+fun formatPhoneNumber(numberToParse: String, defaultRegion: String): String {
     return try {
-        val phoneNumber = phoneUtil.parse(numberToParse, region)
-        if (phoneUtil.isValidNumber(phoneNumber)) {
-            phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
-        } else null
-    } catch (_: NumberParseException) {
-        null
+        phoneUtil.parse(numberToParse, defaultRegion).takeIf { phoneUtil.isValidNumber(it) }
+            ?.let { phoneUtil.format(it, PhoneNumberUtil.PhoneNumberFormat.E164) }
+            ?: throw InvalidPhoneNumberException("Invalid phone number: $numberToParse")
+    } catch (e: NumberParseException) {
+        throw InvalidPhoneNumberException("Invalid phone number: $numberToParse", e)
     }
 }
