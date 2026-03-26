@@ -39,18 +39,20 @@ fun Route.tagRoutes(tagService: TagService) {
                 call.respond(HttpStatusCode.OK, tag)
             }
             get {
+                val userId = call.getUserIdentity()
                 val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 20)
 
-                val pageResponse = tagService.getAllTags(queryParams)
+                val pageResponse = tagService.getAllTags(userId, queryParams)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@put call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
                 val updateTagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.updateTag(tagId, updateTagRequest) ?: return@put call.respond(
+                val tag = tagService.updateTag(userId, tagId, updateTagRequest) ?: return@put call.respond(
                     HttpStatusCode.NotFound, "Tag not found"
                 )
 
