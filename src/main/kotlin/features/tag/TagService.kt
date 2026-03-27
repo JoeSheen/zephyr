@@ -6,15 +6,17 @@ import kotlin.math.ceil
 
 class TagService {
 
-    fun createTag(tagRequest: TagRequest): TagResponse? =
-        TagRepository.saveTag(tagRequest).toTagResponse()
+    fun createTag(userId: Long, tagRequest: TagRequest): TagResponse =
+        TagRepository.saveTag(userId, tagRequest).toTagResponse()
 
-    fun getTagById(id: Long): TagResponse? =
-        TagRepository.getTagById(id = id)?.toTagResponse()
+    fun getTagById(userId: Long, tagId: Long): TagResponse =
+        TagRepository.getTagById(userId, tagId).toTagResponse()
 
-    fun getAllTags(queryParams: QueryParams): PageResponse<TagResponse> {
-        val tags = TagRepository.getAllTags(queryParams).map { tag -> tag.toTagResponse() }
-        val totalItems = TagRepository.countTags()
+    fun getAllTags(userId: Long, queryParams: QueryParams): PageResponse<TagResponse> {
+        val tags = TagRepository.getAllTags(userId, queryParams).map { tag -> tag.toTagResponse() }
+
+        val totalItems = TagRepository.countTags(userId)
+
         return PageResponse(
             items = tags,
             page = queryParams.page,
@@ -24,9 +26,9 @@ class TagService {
         )
     }
 
-    fun updateTag(id: Long, tagRequest: TagRequest): TagResponse? =
-        TagRepository.updateTagById(id = id, name = tagRequest.name, color = tagRequest.hexColor)?.toTagResponse()
+    fun updateTag(userId: Long, tagId: Long, tagRequest: TagRequest): TagResponse =
+        TagRepository.updateTagById(userId, tagId, tagRequest).toTagResponse()
 
-    fun deleteTagById(id: Long): Boolean =
-        TagRepository.deleteTagById(id = id)
+    fun deleteTagById(userId: Long, tagId: Long): Boolean =
+        TagRepository.deleteTagById(userId, tagId)
 }

@@ -1,6 +1,7 @@
 package com.shoejs.features.tag
 
 import com.shoejs.common.query.getQueryParameters
+import com.shoejs.infrastructure.security.getUserIdentity
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -16,49 +17,48 @@ fun Route.tagRoutes(tagService: TagService) {
     route("/tags") {
         authenticate("jwt-auth") {
             post {
+                val userId = call.getUserIdentity()
                 val tagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.createTag(tagRequest) ?: return@post call.respond(
-                    HttpStatusCode.BadRequest, "Invalid tag request"
-                )
+                val tag = tagService.createTag(userId, tagRequest)
 
                 call.respond(HttpStatusCode.Created, tag)
             }
             get("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@get call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                val tag = tagService.getTagById(tagId) ?: return@get call.respond(
-                    HttpStatusCode.NotFound, "Tag not found"
-                )
+                val tag = tagService.getTagById(userId, tagId)
 
                 call.respond(HttpStatusCode.OK, tag)
             }
             get {
+                val userId = call.getUserIdentity()
                 val queryParams = call.getQueryParameters(defaultPage = 1, defaultSize = 20)
 
-                val pageResponse = tagService.getAllTags(queryParams)
+                val pageResponse = tagService.getAllTags(userId, queryParams)
                 call.respond(HttpStatusCode.OK, pageResponse)
             }
             put("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@put call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
                 val updateTagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.updateTag(tagId, updateTagRequest) ?: return@put call.respond(
-                    HttpStatusCode.NotFound, "Tag not found"
-                )
+                val tag = tagService.updateTag(userId, tagId, updateTagRequest)
 
                 call.respond(HttpStatusCode.OK, tag)
             }
             delete("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@delete call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                when(tagService.deleteTagById(tagId)) {
+                when(tagService.deleteTagById(userId, tagId)) {
                     true -> call.respond(HttpStatusCode.OK, "Tag successfully deleted")
                     false -> call.respond(HttpStatusCode.NotFound, "Tag not found")
                 }
