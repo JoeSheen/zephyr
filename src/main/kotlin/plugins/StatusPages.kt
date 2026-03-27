@@ -1,5 +1,6 @@
 package com.shoejs.plugins
 
+import com.shoejs.common.exception.NotAccessibleException
 import com.shoejs.common.exception.ResourceNotFoundException
 import com.shoejs.common.pagination.PaginationInvalidException
 import com.shoejs.common.validation.InvalidPhoneNumberException
@@ -7,7 +8,6 @@ import com.shoejs.features.auth.AuthenticationFailedException
 import com.shoejs.features.auth.AuthenticationFieldFormatException
 import com.shoejs.features.auth.AuthenticationPersistenceException
 import com.shoejs.features.auth.refresh.RefreshTokenRetrievalException
-import com.shoejs.features.journal.JournalNotAccessibleException
 import com.shoejs.infrastructure.database.DatabaseErrorCode
 import com.shoejs.infrastructure.security.AuthorizationException
 import io.ktor.http.HttpStatusCode
@@ -64,7 +64,7 @@ fun Application.configureStatusPages() {
         exception<ResourceNotFoundException> { call, cause ->
             call.respond(status = HttpStatusCode.NotFound, message = mapOf("error" to cause.message))
         }
-        exception<JournalNotAccessibleException> { call, cause ->
+        exception<NotAccessibleException> { call, cause ->
             call.respond(status = HttpStatusCode.Forbidden, message = mapOf("error" to cause.message))
         }
         exception<InvalidPhoneNumberException> { call, cause ->
