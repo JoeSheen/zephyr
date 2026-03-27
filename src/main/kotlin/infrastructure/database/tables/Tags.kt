@@ -15,4 +15,6 @@ fun ResultRow.toTag() = Tag(
     id = this[Tags.id].value,
     name = this[Tags.name],
     color = this[Tags.color],
+    isPublic = this[Tags.isPublic],
+    userId = this[Tags.userId].value,
 )

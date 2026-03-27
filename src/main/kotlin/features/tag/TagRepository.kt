@@ -29,43 +29,52 @@ object TagRepository {
         }.value
 
         // Returns the created tag without a 2nd call to the DB.
-        Tag(savedId, tagRequest.name, tagRequest.hexColor)
+        Tag(savedId, tagRequest.name, tagRequest.hexColor, tagRequest.isPublic, userId)
     }
 
     fun getTagById(userId: Long, tagId: Long): Tag = transaction {
         addLogger(StdOutSqlLogger)
 
         Tags.selectAll().where { (Tags.id eq tagId) and ((Tags.userId eq userId) or Tags.isPublic) }
-            .map { it.toTag() }.singleOrNull() ?: throw RuntimeException("")
+            .map { it.toTag() }.singleOrNull() ?: throw RuntimeException("TEMP EXC L39")
     }
 
     fun getAllTags(userId: Long, queryParams: QueryParams): List<Tag> = transaction {
         addLogger(StdOutSqlLogger)
+
         val orderByQuery = buildOrderByQuery(queryParams.orderField, queryParams.ascending)
 
         val offset = ((queryParams.page - 1) * queryParams.size).toLong()
+
         Tags.selectAll().where { ((Tags.userId eq userId) or Tags.isPublic) }.offset(offset).limit(queryParams.size)
             .orderBy(orderByQuery).map { it.toTag() }
     }
 
     fun countTags(userId: Long): Long = transaction {
+        addLogger(StdOutSqlLogger)
+
         Tags.selectAll().where { ((Tags.userId eq userId) or Tags.isPublic) }.count()
     }
 
     fun updateTagById(userId: Long, tagId: Long, tagRequest: TagRequest): Tag = transaction {
         addLogger(StdOutSqlLogger)
+
         val row = Tags.update(where = { (Tags.id eq tagId) and (Tags.userId eq userId) }) { tagRow ->
             tagRow[Tags.name] = tagRequest.name
             tagRow[Tags.color] = tagRequest.hexColor
             tagRow[Tags.isPublic] = tagRequest.isPublic
         }
-        if (row == 0) throw RuntimeException("")
-        getTagById(userId, tagId)
+
+        if (row == 0) throw RuntimeException("TEMP EXC L68")
+
+        // Returns the updated tag without a 2nd call to the DB.
+        Tag(tagId, tagRequest.name, tagRequest.hexColor, tagRequest.isPublic, userId)
     }
 
-    fun deleteTagById(id: Long): Boolean = transaction {
+    fun deleteTagById(userId: Long, tagId: Long): Boolean = transaction {
         addLogger(StdOutSqlLogger)
-        Tags.deleteWhere { Tags.id eq id } > 0
+
+        Tags.deleteWhere { (Tags.id eq tagId) and (Tags.userId eq userId) } > 0
     }
 
     private fun buildOrderByQuery(orderField: String?, ascending: Boolean): Pair<Column<out Any?>, SortOrder> {

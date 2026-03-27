@@ -6,10 +6,10 @@ import kotlin.math.ceil
 
 class TagService {
 
-    fun createTag(userId: Long, tagRequest: TagRequest): TagResponse? =
+    fun createTag(userId: Long, tagRequest: TagRequest): TagResponse =
         TagRepository.saveTag(userId, tagRequest).toTagResponse()
 
-    fun getTagById(userId: Long, tagId: Long): TagResponse? =
+    fun getTagById(userId: Long, tagId: Long): TagResponse =
         TagRepository.getTagById(userId, tagId).toTagResponse()
 
     fun getAllTags(userId: Long, queryParams: QueryParams): PageResponse<TagResponse> {
@@ -26,9 +26,9 @@ class TagService {
         )
     }
 
-    fun updateTag(userId: Long, tagId: Long, tagRequest: TagRequest): TagResponse? =
+    fun updateTag(userId: Long, tagId: Long, tagRequest: TagRequest): TagResponse =
         TagRepository.updateTagById(userId, tagId, tagRequest).toTagResponse()
 
-    fun deleteTagById(id: Long): Boolean =
-        TagRepository.deleteTagById(id = id)
+    fun deleteTagById(userId: Long, tagId: Long): Boolean =
+        TagRepository.deleteTagById(userId, tagId)
 }

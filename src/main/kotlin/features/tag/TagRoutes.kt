@@ -20,9 +20,7 @@ fun Route.tagRoutes(tagService: TagService) {
                 val userId = call.getUserIdentity()
                 val tagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.createTag(userId, tagRequest) ?: return@post call.respond(
-                    HttpStatusCode.BadRequest, "Invalid tag request"
-                )
+                val tag = tagService.createTag(userId, tagRequest)
 
                 call.respond(HttpStatusCode.Created, tag)
             }
@@ -32,9 +30,7 @@ fun Route.tagRoutes(tagService: TagService) {
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                val tag = tagService.getTagById(userId, tagId) ?: return@get call.respond(
-                    HttpStatusCode.NotFound, "Tag not found"
-                )
+                val tag = tagService.getTagById(userId, tagId)
 
                 call.respond(HttpStatusCode.OK, tag)
             }
@@ -52,18 +48,17 @@ fun Route.tagRoutes(tagService: TagService) {
                 )
                 val updateTagRequest = call.receive<TagRequest>()
 
-                val tag = tagService.updateTag(userId, tagId, updateTagRequest) ?: return@put call.respond(
-                    HttpStatusCode.NotFound, "Tag not found"
-                )
+                val tag = tagService.updateTag(userId, tagId, updateTagRequest)
 
                 call.respond(HttpStatusCode.OK, tag)
             }
             delete("/{tagId}") {
+                val userId = call.getUserIdentity()
                 val tagId = call.parameters["tagId"]?.toLong() ?: return@delete call.respond(
                     HttpStatusCode.BadRequest, "Path parameter 'tagId' is invalid or blank"
                 )
 
-                when(tagService.deleteTagById(tagId)) {
+                when(tagService.deleteTagById(userId, tagId)) {
                     true -> call.respond(HttpStatusCode.OK, "Tag successfully deleted")
                     false -> call.respond(HttpStatusCode.NotFound, "Tag not found")
                 }
