@@ -35,8 +35,8 @@ object TagRepository {
     fun getTagById(userId: Long, tagId: Long): Tag = transaction {
         addLogger(StdOutSqlLogger)
 
-        Tags.selectAll().where { (Tags.id eq tagId) and ((Tags.userId eq userId) or Tags.isPublic) }
-            .map { it.toTag() }.singleOrNull() ?: throw RuntimeException("TEMP EXC L39")
+        Tags.selectAll().where { (Tags.id eq tagId) and ((Tags.userId eq userId) or Tags.isPublic) }.map { it.toTag() }
+            .singleOrNull() ?: throw TagResourceNotFoundException("Tag with [id: $tagId] does not exist")
     }
 
     fun getAllTags(userId: Long, queryParams: QueryParams): List<Tag> = transaction {
@@ -46,8 +46,8 @@ object TagRepository {
 
         val offset = ((queryParams.page - 1) * queryParams.size).toLong()
 
-        Tags.selectAll().where { ((Tags.userId eq userId) or Tags.isPublic) }.offset(offset).limit(queryParams.size)
-            .orderBy(orderByQuery).map { it.toTag() }
+        Tags.selectAll().where { ((Tags.userId eq userId) or Tags.isPublic) }.offset(offset)
+            .limit(queryParams.size).orderBy(orderByQuery).map { it.toTag() }
     }
 
     fun countTags(userId: Long): Long = transaction {
@@ -65,7 +65,7 @@ object TagRepository {
             tagRow[Tags.isPublic] = tagRequest.isPublic
         }
 
-        if (row == 0) throw RuntimeException("TEMP EXC L68")
+        if (row == 0) throw TagNotAccessibleException("Tag $tagId not found or you are not the owner")
 
         // Returns the updated tag without a 2nd call to the DB.
         Tag(tagId, tagRequest.name, tagRequest.hexColor, tagRequest.isPublic, userId)
